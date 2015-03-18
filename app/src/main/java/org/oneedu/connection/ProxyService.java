@@ -58,6 +58,14 @@ public class ProxyService extends Service {
         Preferences.init(mContext);
         PreferenceManager.getDefaultSharedPreferences(mContext).edit().putBoolean(PreferenceUtils.chainProxyEnabled, true).commit();
         PreferenceManager.getDefaultSharedPreferences(mContext).edit().putString(PreferenceUtils.proxyPort, "9008").commit();
+
+        // fix - network connected and restarting service
+        WifiManager wifiManager = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
+        android.net.wifi.WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+        if (wifiInfo != null) {
+            String ssid = wifiInfo.getSSID();
+            toggleProxy(ssid);
+        }
     }
 
     @Override
