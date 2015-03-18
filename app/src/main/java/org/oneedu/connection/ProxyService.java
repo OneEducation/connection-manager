@@ -1,13 +1,8 @@
 package org.oneedu.connection;
 
-import android.app.Notification;
 import android.app.Service;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.ProxyProperties;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
@@ -15,7 +10,6 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import org.sandrop.webscarab.model.Preferences;
 import org.sandrop.webscarab.model.StoreException;
@@ -41,12 +35,14 @@ public class ProxyService extends Service {
     private ClientResolver clientResolver;
     private Context mContext;
     private ProxyDB proxyDB;
+    private WifiManager mWifiManager;
 
     @Override
     public void onCreate() {
         super.onCreate();
 
         mContext = getApplicationContext();
+        mWifiManager = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
 
         proxyDB = new ProxyDB(mContext);
         try {
@@ -59,26 +55,38 @@ public class ProxyService extends Service {
         PreferenceManager.getDefaultSharedPreferences(mContext).edit().putBoolean(PreferenceUtils.chainProxyEnabled, true).commit();
         PreferenceManager.getDefaultSharedPreferences(mContext).edit().putString(PreferenceUtils.proxyPort, "9008").commit();
 
-        // fix - network connected and restarting service
-        WifiManager wifiManager = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
-        android.net.wifi.WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-        if (wifiInfo != null) {
-            String ssid = wifiInfo.getSSID();
-            toggleProxy(ssid);
-        }
+        framework = new Framework(mContext);
+        setStore(getApplicationContext());
+        networkHostNameResolver = new NetworkHostNameResolver(mContext);
+        clientResolver = new ClientResolver(mContext);
+        Proxy proxy = new Proxy(framework, networkHostNameResolver, clientResolver);
+        framework.addPlugin(proxy);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+
+        if (framework != null){
+            framework.stop();
+        }
+        if (networkHostNameResolver != null){
+            networkHostNameResolver.cleanUp();
+        }
+        networkHostNameResolver = null;
+        framework = null;
+        proxyStarted = false;
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i("LocalService", "Received start id " + startId + ": " + intent);
+
+        // fix - network connected and restarting service
         String ssid = null;
-        if (intent != null) {
-            ssid = intent.getStringExtra("SSID");
+        android.net.wifi.WifiInfo wifiInfo = mWifiManager.getConnectionInfo();
+        if (wifiInfo != null) {
+            ssid = wifiInfo.getSSID();
         }
 
         toggleProxy(ssid);
@@ -156,16 +164,8 @@ public class ProxyService extends Service {
             {
                 @Override
                 public void run() {
-                    Context context = getApplicationContext();
-                    framework = new Framework(context);
-                    setStore(getApplicationContext());
-                    networkHostNameResolver = new NetworkHostNameResolver(context);
-                    clientResolver = new ClientResolver(context);
-                    Proxy proxy = new Proxy(framework, networkHostNameResolver, clientResolver);
-                    framework.addPlugin(proxy);
                     framework.start();
                     proxyStarted = true;
-                    //logger.fine("Android os proxy should point to localhost 9008");
                 }
             };
             thread.setName("Starting proxy");
@@ -179,11 +179,6 @@ public class ProxyService extends Service {
                     if (framework != null){
                         framework.stop();
                     }
-                    if (networkHostNameResolver != null){
-                        networkHostNameResolver.cleanUp();
-                    }
-                    networkHostNameResolver = null;
-                    framework = null;
                     proxyStarted = false;
                 }
             };
@@ -210,4 +205,6 @@ public class ProxyService extends Service {
             }
         }
     }
+
+
 }
