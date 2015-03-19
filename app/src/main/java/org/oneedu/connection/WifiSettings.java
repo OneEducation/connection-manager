@@ -513,10 +513,10 @@ public class WifiSettings extends SettingsPreferenceFragment
                     .setEnabled(wifiIsEnabled)
                     .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         } else {
-            menu.add(Menu.NONE, MENU_ID_WPS_PBC, 0, R.string.wifi_menu_wps_pbc)
+            /*menu.add(Menu.NONE, MENU_ID_WPS_PBC, 0, R.string.wifi_menu_wps_pbc)
                     .setIcon(R.drawable.ic_wps)
                     .setEnabled(wifiIsEnabled)
-                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);*/
             menu.add(Menu.NONE, MENU_ID_ADD_NETWORK, 0, R.string.wifi_add_network)
                     .setIcon(R.drawable.ic_menu_add)
                     .setEnabled(wifiIsEnabled)
@@ -525,9 +525,9 @@ public class WifiSettings extends SettingsPreferenceFragment
                     //.setIcon(R.drawable.ic_menu_scan_network)
                     .setEnabled(wifiIsEnabled)
                     .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
-            menu.add(Menu.NONE, MENU_ID_WPS_PIN, 0, R.string.wifi_menu_wps_pin)
+            /*menu.add(Menu.NONE, MENU_ID_WPS_PIN, 0, R.string.wifi_menu_wps_pin)
                     .setEnabled(wifiIsEnabled)
-                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);*/
             if (mP2pSupported) {
                 menu.add(Menu.NONE, MENU_ID_P2P, 0, R.string.wifi_menu_p2p)
                         .setEnabled(wifiIsEnabled)
@@ -579,7 +579,8 @@ public class WifiSettings extends SettingsPreferenceFragment
                 }
                 return true;
             case MENU_ID_ADVANCED:
-                if (getActivity() instanceof PreferenceActivity) {
+                startActivity(new Intent(android.provider.Settings.ACTION_WIFI_IP_SETTINGS));
+                /*if (getActivity() instanceof PreferenceActivity) {
                     ((PreferenceActivity) getActivity()).startPreferencePanel(
                             AdvancedWifiSettings.class.getCanonicalName(),
                             null,
@@ -587,7 +588,7 @@ public class WifiSettings extends SettingsPreferenceFragment
                             this, 0);
                 } else {
                     startFragment(this, AdvancedWifiSettings.class.getCanonicalName(), -1, null);
-                }
+                }*/
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -691,7 +692,11 @@ public class WifiSettings extends SettingsPreferenceFragment
                 }
                 // If it's still null, fine, it's for Add Network
                 mSelectedAccessPoint = ap;
-                mDialog = new WifiDialog(getActivity(), this, ap, mDlgEdit);
+                org.oneedu.connection.Proxy proxy = null;
+                if(ap != null) {
+                    proxy = mProxyService.getProxy(AccessPoint.convertToQuotedString(ap.ssid));
+                }
+                mDialog = new WifiDialog(getActivity(), this, ap, mDlgEdit, proxy);
                 return mDialog;
             case WPS_PBC_DIALOG_ID:
                 return new WpsDialog(getActivity(), WpsInfo.PBC);
