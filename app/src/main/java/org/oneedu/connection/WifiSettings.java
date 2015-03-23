@@ -78,15 +78,6 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.sandrop.webscarab.model.Preferences;
-import org.sandrop.webscarab.model.StoreException;
-import org.sandrop.webscarab.plugin.Framework;
-import org.sandrop.webscarab.plugin.proxy.Proxy;
-import org.sandroproxy.utils.NetworkHostNameResolver;
-import org.sandroproxy.utils.PreferenceUtils;
-import org.sandroproxy.utils.network.ClientResolver;
-import org.sandroproxy.webscarab.store.sql.SqlLiteStore;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -190,10 +181,6 @@ public class WifiSettings extends SettingsPreferenceFragment
 
     // the action bar uses a different set of controls for Setup Wizard
     private boolean mSetupWizardMode;
-    private boolean proxyStarted = false;
-    private Framework framework;
-    private NetworkHostNameResolver networkHostNameResolver;
-    private ClientResolver clientResolver;
 
     /* End of "used in Wifi Setup context" */
 
@@ -222,6 +209,11 @@ public class WifiSettings extends SettingsPreferenceFragment
     public void onCreate(Bundle icicle) {
         // Set this flag early, as it's needed by getHelpResource(), which is called by super
         mSetupWizardMode = getActivity().getIntent().getBooleanExtra(EXTRA_IS_FIRST_RUN, false);
+        try {
+            Settings.Global.putInt(getContentResolver(), Settings.Global.WIFI_SCAN_ALWAYS_AVAILABLE, 0);
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        }
         startService();
         doBindService();
 

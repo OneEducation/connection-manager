@@ -45,12 +45,14 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.CompoundButton.OnCheckedChangeListener;
@@ -68,7 +70,9 @@ import java.util.regex.Pattern;
  * share the logic for controlling buttons, text fields, etc.
  */
 public class WifiConfigController implements TextWatcher,
-        View.OnClickListener, AdapterView.OnItemSelectedListener {
+        View.OnClickListener, AdapterView.OnItemSelectedListener,
+        ViewTreeObserver.OnGlobalFocusChangeListener
+{
     private final WifiConfigUiBase mConfigUi;
     private final View mView;
     private final AccessPoint mAccessPoint;
@@ -231,10 +235,12 @@ public class WifiConfigController implements TextWatcher,
             if (mAccessPoint.networkId != INVALID_NETWORK_ID) {
                 WifiConfiguration config = mAccessPoint.getConfig();
                 if (config.ipAssignment == IpAssignment.STATIC) {
-                    mIpSettingsSpinner.setSelection(STATIC_IP);
+                    //mIpSettingsSpinner.setSelection(STATIC_IP);
+                    setInitialPos(mIpSettingsSpinner, STATIC_IP);
                     showAdvancedFields = true;
                 } else {
-                    mIpSettingsSpinner.setSelection(DHCP);
+                    //mIpSettingsSpinner.setSelection(DHCP);
+                    setInitialPos(mIpSettingsSpinner, DHCP);
                 }
                 //Display IP addresses
                 for(InetAddress a : config.linkProperties.getAddresses()) {
@@ -243,15 +249,17 @@ public class WifiConfigController implements TextWatcher,
 
 
                 if (config.proxySettings == ProxySettings.STATIC) {
-                    mProxySettingsSpinner.setSelection(PROXY_STATIC);
+                    //mProxySettingsSpinner.setSelection(PROXY_STATIC);
+                    setInitialPos(mProxySettingsSpinner, PROXY_STATIC);
                     showAdvancedFields = true;
                 } else {
-                    mProxySettingsSpinner.setSelection(PROXY_NONE);
+                    //mProxySettingsSpinner.setSelection(PROXY_NONE);
+                    setInitialPos(mProxySettingsSpinner, PROXY_NONE);
                 }
             }
 
             if (mAccessPoint.networkId == INVALID_NETWORK_ID || mEdit) {
-                showSecurityFields();
+                showSecurityFields(true);
                 showIpConfigFields();
                 showProxyFields();
                 mView.findViewById(R.id.wifi_advanced_toggle).setVisibility(View.VISIBLE);
@@ -602,22 +610,23 @@ public class WifiConfigController implements TextWatcher,
         return 0;
     }
 
-    private void showSecurityFields() {
+    private View showSecurityFields(boolean init) {
+        View ret = null;
         if (mInXlSetupWizard) {
             // Note: XL SetupWizard won't hide "EAP" settings here.
             if (!((WifiSettingsForSetupWizardXL)mConfigUi.getContext()).initSecurityFields(mView,
                         mAccessPointSecurity)) {
-                return;
+                return ret;
             }
         }
         if (mAccessPointSecurity == AccessPoint.SECURITY_NONE) {
             mView.findViewById(R.id.security_fields).setVisibility(View.GONE);
-            return;
+            return ret;
         }
         mView.findViewById(R.id.security_fields).setVisibility(View.VISIBLE);
 
         if (mPasswordView == null) {
-            mPasswordView = (TextView) mView.findViewById(R.id.password);
+            ret = mPasswordView = (TextView) mView.findViewById(R.id.password);
             mPasswordView.addTextChangedListener(this);
             mShowPassword = (CheckBox) mView.findViewById(R.id.show_password);
             mShowPassword.setOnClickListener(this);
@@ -633,7 +642,7 @@ public class WifiConfigController implements TextWatcher,
 
         if (mAccessPointSecurity != AccessPoint.SECURITY_EAP) {
             mView.findViewById(R.id.eap).setVisibility(View.GONE);
-            return;
+            return ret;
         }
         mView.findViewById(R.id.eap).setVisibility(View.VISIBLE);
 
@@ -643,7 +652,7 @@ public class WifiConfigController implements TextWatcher,
             mPhase2Spinner = (Spinner) mView.findViewById(R.id.phase2);
             mEapCaCertSpinner = (Spinner) mView.findViewById(R.id.ca_cert);
             mEapUserCertSpinner = (Spinner) mView.findViewById(R.id.user_cert);
-            mEapIdentityView = (TextView) mView.findViewById(R.id.identity);
+            ret = mEapIdentityView = (TextView) mView.findViewById(R.id.identity);
             mEapAnonymousView = (TextView) mView.findViewById(R.id.anonymous);
 
             loadCertificates(mEapCaCertSpinner, Credentials.CA_CERTIFICATE);
@@ -654,7 +663,12 @@ public class WifiConfigController implements TextWatcher,
                 WifiEnterpriseConfig enterpriseConfig = mAccessPoint.getConfig().enterpriseConfig;
                 int eapMethod = enterpriseConfig.getEapMethod();
                 int phase2Method = enterpriseConfig.getPhase2Method();
-                mEapMethodSpinner.setSelection(eapMethod);
+                if (init) {
+                    setInitialPos(mEapMethodSpinner, eapMethod);
+                } else {
+                    mEapMethodSpinner.setSelection(eapMethod);
+                }
+
                 showEapFieldsByMethod(eapMethod);
                 switch (eapMethod) {
                     case Eap.PEAP:
@@ -684,12 +698,18 @@ public class WifiConfigController implements TextWatcher,
             } else {
                 // Choose a default for a new network and show only appropriate
                 // fields
-                mEapMethodSpinner.setSelection(Eap.PEAP);
+                if (init) {
+                    setInitialPos(mEapMethodSpinner, Eap.PEAP);
+                } else {
+                    mEapMethodSpinner.setSelection(Eap.PEAP);
+                }
                 showEapFieldsByMethod(Eap.PEAP);
             }
         } else {
             showEapFieldsByMethod(mEapMethodSpinner.getSelectedItemPosition());
         }
+
+        return ret;
     }
 
     /**
@@ -787,8 +807,9 @@ public class WifiConfigController implements TextWatcher,
         mView.findViewById(R.id.show_password_layout).setVisibility(View.GONE);
     }
 
-    private void showIpConfigFields() {
+    private View showIpConfigFields() {
         WifiConfiguration config = null;
+        View ret = null;
 
         mView.findViewById(R.id.ip_fields).setVisibility(View.VISIBLE);
 
@@ -799,7 +820,7 @@ public class WifiConfigController implements TextWatcher,
         if (mIpSettingsSpinner.getSelectedItemPosition() == STATIC_IP) {
             mView.findViewById(R.id.staticip).setVisibility(View.VISIBLE);
             if (mIpAddressView == null) {
-                mIpAddressView = (TextView) mView.findViewById(R.id.ipaddress);
+                ret = mIpAddressView = (TextView) mView.findViewById(R.id.ipaddress);
                 mIpAddressView.addTextChangedListener(this);
                 mGatewayView = (TextView) mView.findViewById(R.id.gateway);
                 mGatewayView.addTextChangedListener(this);
@@ -839,10 +860,12 @@ public class WifiConfigController implements TextWatcher,
         } else {
             mView.findViewById(R.id.staticip).setVisibility(View.GONE);
         }
+        return ret;
     }
 
-    private void showProxyFields() {
+    private View showProxyFields() {
         WifiConfiguration config = null;
+        View ret = null;
 
         mView.findViewById(R.id.proxy_settings_fields).setVisibility(View.VISIBLE);
 
@@ -854,7 +877,9 @@ public class WifiConfigController implements TextWatcher,
 
 
             mView.findViewById(R.id.proxy_warning_limited_support).setVisibility(View.VISIBLE);
-            mView.findViewById(R.id.proxy_fields).setVisibility(View.VISIBLE);
+            View proxyFields = mView.findViewById(R.id.proxy_fields);
+            proxyFields.setVisibility(View.VISIBLE);
+            ret = proxyFields;
             if (mProxyHostView == null) {
                 mProxyHostView = (TextView) mView.findViewById(R.id.proxy_hostname);
                 mProxyHostView.addTextChangedListener(this);
@@ -885,6 +910,7 @@ public class WifiConfigController implements TextWatcher,
             mView.findViewById(R.id.proxy_warning_limited_support).setVisibility(View.GONE);
             mView.findViewById(R.id.proxy_fields).setVisibility(View.GONE);
         }
+        return ret;
     }
 
 
@@ -949,27 +975,60 @@ public class WifiConfigController implements TextWatcher,
         if (view.getId() == R.id.show_password) {
             updatePasswordVisibility(((CheckBox) view).isChecked());
         } else if (view.getId() == R.id.wifi_advanced_togglebox) {
+
             if (((CheckBox) view).isChecked()) {
-                mView.findViewById(R.id.wifi_advanced_fields).setVisibility(View.VISIBLE);
+                final View advancedFields = mView.findViewById(R.id.wifi_advanced_fields);
+                advancedFields.setVisibility(View.VISIBLE);
+
+                advancedFields.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mProxySettingsSpinner.getSelectedItemPosition() == PROXY_NONE &&
+                                mIpSettingsSpinner.getSelectedItemPosition() == DHCP) {
+
+                            // Hack for prevent auto-scroll to edittext on top
+                            ((ScrollView) mView).setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+                            ((ScrollView) mView).pageScroll(View.FOCUS_DOWN);
+                            mView.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    ((ScrollView) mView).setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
+                                }
+                            });
+                        } else {
+                            advancedFields.requestFocus();
+                        }
+                    }
+                });
             } else {
                 mView.findViewById(R.id.wifi_advanced_fields).setVisibility(View.GONE);
             }
         }
     }
 
+
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        View focusView = null;
         if (parent == mSecuritySpinner) {
             mAccessPointSecurity = position;
-            showSecurityFields();
+            focusView = showSecurityFields(false);
         } else if (parent == mEapMethodSpinner) {
-            showSecurityFields();
+            focusView = showSecurityFields(false);
         } else if (parent == mProxySettingsSpinner) {
-            showProxyFields();
+            focusView = showProxyFields();
         } else {
-            showIpConfigFields();
+            focusView = showIpConfigFields();
         }
         enableSubmitIfAppropriate();
+
+        // Log.d("Test", "" + parent.getTag() + " / " + position);
+        // Check whether it's called during initialising.
+        if (parent.getTag() != null && (Integer)parent.getTag() == position) {
+            parent.setTag(null);
+        } else if (focusView != null) {
+            focusView.requestFocus();
+        }
     }
 
     @Override
@@ -997,5 +1056,54 @@ public class WifiConfigController implements TextWatcher,
 
     public String getProxyPassword() {
         return ((EditText)mView.findViewById(R.id.proxy_password)).getText().toString();
+    }
+
+    @Override
+    public void onGlobalFocusChanged(View oldFocus, View newFocus) {
+        if (mView == null || newFocus == null || oldFocus == newFocus || mView.findViewById(newFocus.getId()) == null) {
+            return;
+        }
+        scrollViewToCenter(newFocus);
+    }
+
+    private void setInitialPos(Spinner spinner, int pos) {
+        spinner.setTag(pos);
+        spinner.setSelection(pos, false);
+    }
+
+    private void scrollViewToCenter(final View v) {
+
+        mView.post(new Runnable() {
+            @Override
+            public void run() {
+                // Determine where to set the scroll-to to by measuring the distance from the top of the scroll view
+                // to the control to focus on by summing the "top" position of each view in the hierarchy.
+                int yDistanceToControlsView = 0;
+                View parentView = (View) v.getParent();
+                while (true)
+                {
+                    if (parentView.equals(mView))
+                    {
+                        break;
+                    }
+                    yDistanceToControlsView += parentView.getTop();
+                    parentView = (View) parentView.getParent();
+                }
+
+                // Compute the final position value for the top and bottom of the control in the scroll view.
+                final int topInScrollView = yDistanceToControlsView + v.getTop();
+                final int bottomInScrollView = yDistanceToControlsView + v.getBottom();
+                final int middleY = (mView.getScrollY() + mView.getHeight()/2);
+
+                //Log.d("Test", "scrollY : " + mView.getScrollY() + " / " + mView.getHeight() +" / " + "focusY : " + topInScrollView);
+                // Post the scroll action to happen on the scrollView with the UI thread.
+                mView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        ((ScrollView)mView).smoothScrollBy(0, topInScrollView - middleY);
+                    }
+                });
+            }
+        });
     }
 }

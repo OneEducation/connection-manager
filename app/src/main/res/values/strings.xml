@@ -1,5 +1,5 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="app_name">ConnectionManager</string>
+    <string name="app_name">Connect</string>
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
