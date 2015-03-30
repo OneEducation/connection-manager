@@ -1,0 +1,4 @@
+<resources>
+    <dimen name="main_view_left_margin">200dp</dimen>
+    <dimen name="main_view_right_margin">200dp</dimen>
+</resources>

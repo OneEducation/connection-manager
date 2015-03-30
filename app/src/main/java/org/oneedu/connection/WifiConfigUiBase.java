@@ -26,12 +26,15 @@ import android.widget.Button;
  */
 public interface WifiConfigUiBase {
     public Context getContext();
-    public WifiConfigController getController();
+    public WifiDialogController getController();
+    public WifiConfigController getController1();
     public LayoutInflater getLayoutInflater();
     public boolean isEdit();
 
     public void setTitle(int id);
     public void setTitle(CharSequence title);
+    public void setSummary(String summary);
+    public void setSignal(AccessPoint_ ap);
 
     public void setSubmitButton(CharSequence text);
     public void setForgetButton(CharSequence text);

@@ -1,0 +1,10 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="access_point_main_height">150dp</dimen>
+    <dimen name="access_point_buttons_margin">120dp</dimen>
+    <dimen name="access_point_buttons_height">80dp</dimen>
+    <dimen name="access_point_height_extend">200dp</dimen>
+
+    <dimen name="main_view_left_margin">100dp</dimen>
+    <dimen name="main_view_right_margin">100dp</dimen>
+</resources>

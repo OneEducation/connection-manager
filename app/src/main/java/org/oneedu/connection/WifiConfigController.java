@@ -75,7 +75,7 @@ public class WifiConfigController implements TextWatcher,
 {
     private final WifiConfigUiBase mConfigUi;
     private final View mView;
-    private final AccessPoint mAccessPoint;
+    private final AccessPoint_ mAccessPoint;
 
     private boolean mEdit;
 
@@ -144,16 +144,15 @@ public class WifiConfigController implements TextWatcher,
     private LinkProperties mLinkProperties = new LinkProperties();
 
     // True when this instance is used in SetupWizard XL context.
-    private final boolean mInXlSetupWizard;
+    private final boolean mInXlSetupWizard = false;
 
     private final Handler mTextViewChangedHandler;
 
     private Proxy mProxy;
 
     public WifiConfigController(
-            WifiConfigUiBase parent, View view, AccessPoint accessPoint, boolean edit, Proxy proxy) {
+            WifiConfigUiBase parent, View view, AccessPoint_ accessPoint, boolean edit, Proxy proxy) {
         mConfigUi = parent;
-        mInXlSetupWizard = (parent instanceof WifiConfigUiForSetupWizardXL);
 
         mView = view;
         mAccessPoint = accessPoint;
@@ -202,7 +201,7 @@ public class WifiConfigController implements TextWatcher,
                 mView.findViewById(R.id.type).setVisibility(View.VISIBLE);
             }
 
-            showIpConfigFields();
+            //showIpConfigFields();
             showProxyFields();
             mView.findViewById(R.id.wifi_advanced_toggle).setVisibility(View.VISIBLE);
             mView.findViewById(R.id.wifi_advanced_togglebox).setOnClickListener(this);
@@ -210,15 +209,16 @@ public class WifiConfigController implements TextWatcher,
             mConfigUi.setSubmitButton(context.getString(R.string.wifi_save));
         } else {
             mConfigUi.setTitle(mAccessPoint.ssid);
-
-            ViewGroup group = (ViewGroup) mView.findViewById(R.id.info);
+            mConfigUi.setSummary(mAccessPoint.getSummary().toString());
+            mConfigUi.setSignal(mAccessPoint);
 
             DetailedState state = mAccessPoint.getState();
+            int level = mAccessPoint.getLevel();
+            /*ViewGroup group = (ViewGroup) mView.findViewById(R.id.info);
             if (state != null) {
                 addRow(group, R.string.wifi_status, Summary.get(mConfigUi.getContext(), state));
             }
 
-            int level = mAccessPoint.getLevel();
             if (level != -1) {
                 String[] signal = resources.getStringArray(R.array.wifi_signal);
                 addRow(group, R.string.wifi_signal, signal[level]);
@@ -230,6 +230,7 @@ public class WifiConfigController implements TextWatcher,
             }
 
             addRow(group, R.string.wifi_security, mAccessPoint.getSecurityString(false));
+            */
 
             boolean showAdvancedFields = false;
             if (mAccessPoint.networkId != INVALID_NETWORK_ID) {
@@ -243,9 +244,9 @@ public class WifiConfigController implements TextWatcher,
                     setInitialPos(mIpSettingsSpinner, DHCP);
                 }
                 //Display IP addresses
-                for(InetAddress a : config.linkProperties.getAddresses()) {
+                /*for(InetAddress a : config.linkProperties.getAddresses()) {
                     addRow(group, R.string.wifi_ip_address, a.getHostAddress());
-                }
+                }*/
 
 
                 if (config.proxySettings == ProxySettings.STATIC) {
@@ -260,7 +261,7 @@ public class WifiConfigController implements TextWatcher,
 
             if (mAccessPoint.networkId == INVALID_NETWORK_ID || mEdit) {
                 showSecurityFields(true);
-                showIpConfigFields();
+                //showIpConfigFields();
                 showProxyFields();
                 mView.findViewById(R.id.wifi_advanced_toggle).setVisibility(View.VISIBLE);
                 mView.findViewById(R.id.wifi_advanced_togglebox).setOnClickListener(this);
@@ -299,7 +300,7 @@ public class WifiConfigController implements TextWatcher,
     }
 
     /* show submit button if password, ip and proxy settings are valid */
-    void enableSubmitIfAppropriate() {
+    public void enableSubmitIfAppropriate() {
         Button submit = mConfigUi.getSubmitButton();
         if (submit == null) return;
 
@@ -326,7 +327,7 @@ public class WifiConfigController implements TextWatcher,
         submit.setEnabled(enabled);
     }
 
-    /* package */ WifiConfiguration getConfig() {
+    public WifiConfiguration getConfig() {
         if (mAccessPoint != null && mAccessPoint.networkId != INVALID_NETWORK_ID && !mEdit) {
             return null;
         }
@@ -612,13 +613,7 @@ public class WifiConfigController implements TextWatcher,
 
     private View showSecurityFields(boolean init) {
         View ret = null;
-        if (mInXlSetupWizard) {
-            // Note: XL SetupWizard won't hide "EAP" settings here.
-            if (!((WifiSettingsForSetupWizardXL)mConfigUi.getContext()).initSecurityFields(mView,
-                        mAccessPointSecurity)) {
-                return ret;
-            }
-        }
+
         if (mAccessPointSecurity == AccessPoint.SECURITY_NONE) {
             mView.findViewById(R.id.security_fields).setVisibility(View.GONE);
             return ret;
@@ -1018,7 +1013,7 @@ public class WifiConfigController implements TextWatcher,
         } else if (parent == mProxySettingsSpinner) {
             focusView = showProxyFields();
         } else {
-            focusView = showIpConfigFields();
+            //focusView = showIpConfigFields();
         }
         enableSubmitIfAppropriate();
 

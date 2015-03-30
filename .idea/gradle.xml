@@ -8,8 +8,11 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/SwitchButton/SwitchButton/library" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/connect" />
             <option value="$PROJECT_DIR$/sandroProxyLib" />
+            <option value="$PROJECT_DIR$/uikit" />
           </set>
         </option>
       </GradleProjectSettings>

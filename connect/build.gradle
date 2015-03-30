@@ -1,0 +1,45 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion "Google Inc.:Google APIs:21"
+    buildToolsVersion "21.1.2"
+
+    signingConfigs {
+        sys {
+            storeFile file('/Users/dongseok0/Downloads/platform_keys/platform.keystore')
+            keyAlias 'OneEduSystem'
+            keyPassword 'Olpcau2015'
+            storePassword 'Olpcau2015'
+        }
+    }
+
+    defaultConfig {
+        applicationId "org.oneedu.connect"
+        minSdkVersion 18
+        targetSdkVersion 21
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.sys
+        }
+        debug {
+            signingConfig signingConfigs.sys
+        }
+    }
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile project(':app')
+    compile project(':uikit')
+    compile project(':SwitchButton/SwitchButton/library')
+    compile 'com.h6ah4i.android.materialshadowninepatch:materialshadowninepatch:0.5.0'
+}

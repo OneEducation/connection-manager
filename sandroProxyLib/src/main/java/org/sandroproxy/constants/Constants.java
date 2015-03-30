@@ -41,4 +41,6 @@ public class Constants {
     public static final String CERTS_FILE_NAME = "/.keystorecerts";
     public static final String CA_FILE_EXPORT_POSTFIX = "_export.crt";
     public static final String CERT_DEFAULT_PASSWORD = "password";
+
+    public static int DEFAULT_BUFFER_SIZE = 1024;
 }

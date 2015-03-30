@@ -274,6 +274,18 @@
                         android:singleLine="true" />
                 </LinearLayout>
 
+                <LinearLayout android:id="@+id/show_proxy_password_layout"
+                    style="@style/wifi_item" >
+                    <!--  Dummy to enable right-justification of checkbox -->
+                    <TextView
+                        style="@style/wifi_item_label" />
+
+                    <CheckBox android:id="@+id/show_proxy_password"
+                        style="@style/wifi_item_content"
+                        android:textSize="14sp"
+                        android:text="@string/wifi_show_password" />
+                </LinearLayout>
+
             </LinearLayout>
 
             <LinearLayout android:id="@+id/ip_fields"

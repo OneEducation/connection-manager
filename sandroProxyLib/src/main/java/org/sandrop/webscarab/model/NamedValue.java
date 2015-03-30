@@ -43,6 +43,7 @@ public class NamedValue {
     
     private String _name;
     private String _value;
+    private byte[] _byte;
     
     private static Logger _logger = Logger.getLogger("org.owasp.webscarab.model.NamedValue");
     
@@ -54,6 +55,17 @@ public class NamedValue {
     public NamedValue(String name, String value) {
         _name = name;
         _value = value;
+    }
+
+    public NamedValue(String header) {
+        String[] pair = header.split(":", 2);
+        _name = pair[0];
+        _value = pair[1].trim();
+        _byte = header.getBytes();
+    }
+
+    public byte[] getByte() {
+        return _byte;
     }
     
     public String getName() {

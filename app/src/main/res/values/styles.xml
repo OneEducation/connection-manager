@@ -2,10 +2,10 @@
     <attr name="wifi_signal_color" format="reference" />
     <attr name="wifi_signal" format="reference" />
 
-    <!-- Base application theme. -->
-    <style name="AppTheme">
-        <!-- Customize your theme here. -->
-    </style>
+    <!--&lt;!&ndash; Base application theme. &ndash;&gt;-->
+    <!--<style name="AppTheme">-->
+        <!--&lt;!&ndash; Customize your theme here. &ndash;&gt;-->
+    <!--</style>-->
 
     <style name="wifi_item">
         <item name="android:layout_width">match_parent</item>

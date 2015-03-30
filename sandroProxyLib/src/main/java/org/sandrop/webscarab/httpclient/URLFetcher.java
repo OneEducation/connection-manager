@@ -63,6 +63,7 @@ import org.sandrop.webscarab.model.NamedValue;
 import org.sandrop.webscarab.model.Request;
 import org.sandrop.webscarab.model.Response;
 import org.sandrop.webscarab.util.Glob;
+import org.sandroproxy.constants.Constants;
 
 /** Creates a new instance of URLFetcher
  * @author rdawes
@@ -305,7 +306,9 @@ public class URLFetcher implements HTTPClient {
                 request.write(_out);
             }
             _out.flush();
-            _logger.finest("Request : \n" + request.toString());
+            if (org.sandroproxy.logger.Logger.isEnable()) {
+                _logger.finest("Request : \n" + request.toString());
+            }
 
             _response = new Response();
             _response.setRequest(request);
@@ -319,20 +322,23 @@ public class URLFetcher implements HTTPClient {
             } while (status.equals("100"));
 
             {
-                StringBuffer buff = new StringBuffer();
+                StringBuffer buff = new StringBuffer(Constants.DEFAULT_BUFFER_SIZE);
                 buff.append(_response.getStatusLine()).append("\n");
                 NamedValue[] headers = _response.getHeaders();
                 if (headers != null)
-                    for (int i=0; i< headers.length; i++)
+                    for (int i = 0; i < headers.length; i++)
                         buff.append(headers[i].getName()).append(": ").append(headers[i].getValue()).append("\n");
-                _logger.finest("Response:\n" + buff.toString());
+
+                if (org.sandroproxy.logger.Logger.isEnable()) {
+                    _logger.finest("Response:\n" + buff.toString());
+                }
             }
 
             if (status.equals("407")) {
-                if ( _proxyAuthCredsBasic.containsKey(_httpProxy + _httpProxyPort) && proxyAuthHeader != null &&proxyAuthHeader.startsWith("Basic")){
+                if (_proxyAuthCredsBasic.containsKey(_httpProxy + _httpProxyPort) && proxyAuthHeader != null && proxyAuthHeader.startsWith("Basic")) {
                     _proxyAuthCredsBasic.remove(_httpProxy + _httpProxyPort);
                 }
-                
+
                 _response.flushContentStream();
                 oldProxyAuthHeader = proxyAuthHeader;
                 String[] challenges = _response.getHeaders("Proxy-Authenticate");
@@ -365,7 +371,9 @@ public class URLFetcher implements HTTPClient {
             // may be a Content-Length header.
             if (request.getMethod().equals("HEAD")) _response.setNoBody();
 
-            _logger.info(request.getURL() +" : " + _response.getStatusLine());
+            if (org.sandroproxy.logger.Logger.isEnable()) {
+                _logger.info(request.getURL() + " : " + _response.getStatusLine());
+            }
 
             String connection = _response.getHeader("Proxy-Connection");
             if (connection != null && "close".equalsIgnoreCase(connection)) {

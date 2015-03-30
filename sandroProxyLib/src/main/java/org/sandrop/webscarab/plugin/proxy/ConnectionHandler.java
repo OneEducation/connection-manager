@@ -269,7 +269,9 @@ public class ConnectionHandler implements Runnable {
                             return;
                         }else{
                             String forwarderName = _base.getHost() + ":" + _base.getPort();
-                            _logger.fine("Acting as forwarder on " + forwarderName + " for " + clientId);
+                            if (org.sandroproxy.logger.Logger.isEnable()) {
+                                _logger.fine("Acting as forwarder on " + forwarderName + " for " + clientId);
+                            }
                             Socket target;
                             if (_useFakeCerts){
                                 hostData = new SiteData();
@@ -415,7 +417,9 @@ public class ConnectionHandler implements Runnable {
                 // read the request, otherwise we already have it.
                 if (request == null) {
                     request = new Request(_transparent, _transparentSecure, _connectionDescriptor);
-                    _logger.fine("Reading request from the " + clientId);
+                    if (org.sandroproxy.logger.Logger.isEnable()) {
+                        _logger.fine("Reading request from the " + clientId);
+                    }
                     _sock.setSoTimeout(_socket_timeout_large);
                     request.read(_clientIn, _base);
                     if (request.getMethod() == null || request.getURL() == null) {
@@ -535,7 +539,9 @@ public class ConnectionHandler implements Runnable {
 
                 try {
                     if (_clientOut != null) {
-                        _logger.fine("Writing the response to the " + clientId);
+                        if (org.sandroproxy.logger.Logger.isEnable()) {
+                            _logger.fine("Writing the response to the " + clientId);
+                        }
                         if (response.getStatus().equalsIgnoreCase("101")){
                             switchProtocol = true;
                             _logger.fine("Switching protocols on 101 code");
@@ -545,8 +551,9 @@ public class ConnectionHandler implements Runnable {
                         }else{
                             response.write(_clientOut);
                         }
-                        
-                        _logger.fine("Finished writing the response to the " + clientId);
+                        if (org.sandroproxy.logger.Logger.isEnable()) {
+                            _logger.fine("Finished writing the response to the " + clientId);
+                        }
                     }
                 } catch (IOException ioe) {
                     _logger
@@ -574,7 +581,9 @@ public class ConnectionHandler implements Runnable {
                 request = null;
                 response = null;
 
-                _logger.fine("Version: " + version + " keepAlive: " + keepAlive + " reuseCount:" + reuseCount);
+                if (org.sandroproxy.logger.Logger.isEnable()) {
+                    _logger.fine("Version: " + version + " keepAlive: " + keepAlive + " reuseCount:" + reuseCount);
+                }
                 reuseCount++;
             } while (!switchProtocol && 
                     ((version.equals("HTTP/1.0") && "keep-alive".equalsIgnoreCase(keepAlive)) 

@@ -80,16 +80,17 @@ public class ProxyService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i("LocalService", "Received start id " + startId + ": " + intent);
+        Log.i(tag, "Received start id " + startId + ": " + intent);
 
         // fix - network connected and restarting service
         String ssid = null;
         android.net.wifi.WifiInfo wifiInfo = mWifiManager.getConnectionInfo();
         if (wifiInfo != null) {
-            Log.d(tag, ssid + " / " + wifiInfo.getNetworkId() + " / " + wifiInfo.getIpAddress());
+
             if (wifiInfo.getNetworkId() != -1 && wifiInfo.getIpAddress() != 0) {
                 ssid = wifiInfo.getSSID();
             }
+            Log.d(tag, ssid + " / " + wifiInfo.getNetworkId() + " / " + wifiInfo.getIpAddress());
         }
 
         toggleProxy(ssid);
@@ -114,12 +115,36 @@ public class ProxyService extends Service {
      * IPC.
      */
     public class LocalBinder extends Binder {
-        ProxyService getService() {
+        public ProxyService getService() {
             return ProxyService.this;
         }
     }
 
     public WifiConfiguration addOrUpdateProxy(WifiConfigController controller) {
+        WifiConfiguration config = controller.getConfig();
+        String ssid = config.SSID;
+
+        if (config.proxySettings == WifiConfiguration.ProxySettings.STATIC
+                && controller.getProxyUsername().length() > 0
+                && controller.getProxyPassword().length() > 0) {
+
+            String host = config.linkProperties.getHttpProxy().getHost();
+            int port = config.linkProperties.getHttpProxy().getPort();
+            String username = controller.getProxyUsername();
+            String password = controller.getProxyPassword();
+            proxyDB.addOrUpdateProxy(ssid, host, port, username, password);
+
+
+            ProxyProperties proxyProperties= new ProxyProperties("localhost", 9008, "");
+            config.linkProperties.setHttpProxy(proxyProperties);
+        } else {
+            proxyDB.deleteProxy(ssid);
+        }
+
+        return config;
+    }
+
+    public WifiConfiguration addOrUpdateProxy(WifiDialogController controller) {
         WifiConfiguration config = controller.getConfig();
         String ssid = config.SSID;
 

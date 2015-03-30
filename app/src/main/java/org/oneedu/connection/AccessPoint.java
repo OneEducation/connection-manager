@@ -30,7 +30,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 
-class AccessPoint extends Preference {
+public class AccessPoint extends Preference {
     static final String TAG = "Settings.AccessPoint";
 
     private static final String KEY_DETAILEDSTATE = "key_detailedstate";
@@ -38,13 +38,13 @@ class AccessPoint extends Preference {
     private static final String KEY_SCANRESULT = "key_scanresult";
     private static final String KEY_CONFIG = "key_config";
 
-    private static final int[] STATE_SECURED = {
+    public static final int[] STATE_SECURED = {
         R.attr.state_encrypted
     };
-    private static final int[] STATE_NONE = {};
+    public static final int[] STATE_NONE = {};
 
     /** These values are matched in string arrays -- changes must be kept in sync */
-    static final int SECURITY_NONE = 0;
+    public static final int SECURITY_NONE = 0;
     static final int SECURITY_WEP = 1;
     static final int SECURITY_PSK = 2;
     static final int SECURITY_EAP = 3;
@@ -56,10 +56,10 @@ class AccessPoint extends Preference {
         WPA_WPA2
     }
 
-    String ssid;
+    public String ssid;
     String bssid;
-    int security;
-    int networkId;
+    public int security;
+    public int networkId;
     boolean wpsAvailable = false;
 
     PskType pskType = PskType.UNKNOWN;
@@ -67,7 +67,7 @@ class AccessPoint extends Preference {
     private WifiConfiguration mConfig;
     /* package */ScanResult mScanResult;
 
-    private int mRssi;
+    public int mRssi;
     private WifiInfo mInfo;
     private DetailedState mState;
 
@@ -139,21 +139,21 @@ class AccessPoint extends Preference {
         }
     }
 
-    AccessPoint(Context context, WifiConfiguration config) {
+    public AccessPoint(Context context, WifiConfiguration config) {
         super(context);
         setWidgetLayoutResource(R.layout.preference_widget_wifi_signal);
         loadConfig(config);
         refresh();
     }
 
-    AccessPoint(Context context, ScanResult result) {
+    public AccessPoint(Context context, ScanResult result) {
         super(context);
         setWidgetLayoutResource(R.layout.preference_widget_wifi_signal);
         loadResult(result);
         refresh();
     }
 
-    AccessPoint(Context context, Bundle savedState) {
+    public AccessPoint(Context context, Bundle savedState) {
         super(context);
         setWidgetLayoutResource(R.layout.preference_widget_wifi_signal);
 
@@ -261,7 +261,7 @@ class AccessPoint extends Preference {
         return result;
     }
 
-    boolean update(ScanResult result) {
+    public boolean update(ScanResult result) {
         if (ssid.equals(result.SSID) && security == getSecurity(result)) {
             if (WifiManager.compareSignalLevel(result.level, mRssi) > 0) {
                 int oldLevel = getLevel();
@@ -300,14 +300,14 @@ class AccessPoint extends Preference {
         }
     }
 
-    int getLevel() {
+    public int getLevel() {
         if (mRssi == Integer.MAX_VALUE) {
             return -1;
         }
         return WifiManager.calculateSignalLevel(mRssi, 4);
     }
 
-    WifiConfiguration getConfig() {
+    public WifiConfiguration getConfig() {
         return mConfig;
     }
 
@@ -315,7 +315,7 @@ class AccessPoint extends Preference {
         return mInfo;
     }
 
-    DetailedState getState() {
+    public DetailedState getState() {
         return mState;
     }
 
@@ -328,7 +328,7 @@ class AccessPoint extends Preference {
         return string;
     }
 
-    static String convertToQuotedString(String string) {
+    public static String convertToQuotedString(String string) {
         return "\"" + string + "\"";
     }
 
@@ -383,9 +383,8 @@ class AccessPoint extends Preference {
     /**
      * Generate and save a default wifiConfiguration with common values.
      * Can only be called for unsecured networks.
-     * @hide
      */
-    protected void generateOpenNetworkConfig() {
+    public void generateOpenNetworkConfig() {
         if (security != SECURITY_NONE)
             throw new IllegalStateException();
         if (mConfig != null)
