@@ -106,6 +106,7 @@ public class WifiSettings extends SettingsPreferenceFragment
     private static final int MENU_ID_CONNECT = Menu.FIRST + 6;
     private static final int MENU_ID_FORGET = Menu.FIRST + 7;
     private static final int MENU_ID_MODIFY = Menu.FIRST + 8;
+    private static final int MENU_ID_INSTALL_GOOGLE_SERVICE = Menu.FIRST + 9;
 
     private static final int WIFI_DIALOG_ID = 1;
     private static final int WPS_PBC_DIALOG_ID = 2;
@@ -211,6 +212,8 @@ public class WifiSettings extends SettingsPreferenceFragment
         mSetupWizardMode = getActivity().getIntent().getBooleanExtra(EXTRA_IS_FIRST_RUN, false);
         try {
             Settings.Global.putInt(getContentResolver(), Settings.Global.WIFI_SCAN_ALWAYS_AVAILABLE, 0);
+            Settings.Global.putInt(getContentResolver(), "device_provisioned", 1);
+            Settings.Secure.putInt(getContentResolver(), "user_setup_complete", 1);
         } catch (SecurityException e) {
             e.printStackTrace();
         }
@@ -528,6 +531,11 @@ public class WifiSettings extends SettingsPreferenceFragment
             menu.add(Menu.NONE, MENU_ID_ADVANCED, 0, R.string.wifi_menu_advanced)
                     //.setIcon(android.R.drawable.ic_menu_manage)
                     .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+
+            if (new File("data/app/" + "com.google.android.gms-1.apk").exists()) {
+                menu.add(Menu.NONE, MENU_ID_INSTALL_GOOGLE_SERVICE, 0, R.string.install_google_service)
+                        .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+            }
         }
         super.onCreateOptionsMenu(menu, inflater);
     }
@@ -581,6 +589,13 @@ public class WifiSettings extends SettingsPreferenceFragment
                 } else {
                     startFragment(this, AdvancedWifiSettings.class.getCanonicalName(), -1, null);
                 }*/
+                return true;
+
+            case MENU_ID_INSTALL_GOOGLE_SERVICE:
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setDataAndType(Uri.fromFile(new File("data/app/" + "com.google.android.gms-1.apk")), "application/vnd.android.package-archive");
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
                 return true;
         }
         return super.onOptionsItemSelected(item);

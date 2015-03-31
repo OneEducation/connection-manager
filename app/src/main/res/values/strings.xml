@@ -697,4 +697,6 @@
     <string name="radioInfo_unknown">unknown</string>
     <!-- Manage applications, individual application screen, confirmation dialog button. Displays when user selects to "Clear data". Goes through with the clearing of the data. -->
     <string name="dlg_ok">OK</string>
+
+    <string name="install_google_service">Install google service</string>
 </resources>
