@@ -132,6 +132,8 @@ public class WifiConfigController implements TextWatcher,
     private TextView mProxyHostView;
     private TextView mProxyPortView;
     private TextView mProxyExclusionListView;
+    private TextView mProxyUsername;
+    private TextView mProxyPassword;
 
     private IpAssignment mIpAssignment = IpAssignment.UNASSIGNED;
     private ProxySettings mProxySettings = ProxySettings.UNASSIGNED;
@@ -142,8 +144,10 @@ public class WifiConfigController implements TextWatcher,
 
     private final Handler mTextViewChangedHandler;
 
+    private Proxy mProxy;
+
     public WifiConfigController(
-            WifiConfigUiBase parent, View view, AccessPoint accessPoint, boolean edit) {
+            WifiConfigUiBase parent, View view, AccessPoint accessPoint, boolean edit, Proxy proxy) {
         mConfigUi = parent;
         mInXlSetupWizard = (parent instanceof WifiConfigUiForSetupWizardXL);
 
@@ -152,6 +156,7 @@ public class WifiConfigController implements TextWatcher,
         mAccessPointSecurity = (accessPoint == null) ? AccessPoint.SECURITY_NONE :
                 accessPoint.security;
         mEdit = edit;
+        mProxy = proxy;
 
         mTextViewChangedHandler = new Handler();
         final Context context = mConfigUi.getContext();
@@ -846,6 +851,8 @@ public class WifiConfigController implements TextWatcher,
         }
 
         if (mProxySettingsSpinner.getSelectedItemPosition() == PROXY_STATIC) {
+
+
             mView.findViewById(R.id.proxy_warning_limited_support).setVisibility(View.VISIBLE);
             mView.findViewById(R.id.proxy_fields).setVisibility(View.VISIBLE);
             if (mProxyHostView == null) {
@@ -855,6 +862,9 @@ public class WifiConfigController implements TextWatcher,
                 mProxyPortView.addTextChangedListener(this);
                 mProxyExclusionListView = (TextView) mView.findViewById(R.id.proxy_exclusionlist);
                 mProxyExclusionListView.addTextChangedListener(this);
+
+                mProxyUsername = (TextView) mView.findViewById(R.id.proxy_username);
+                mProxyPassword = (TextView) mView.findViewById(R.id.proxy_password);
             }
             if (config != null) {
                 ProxyProperties proxyProperties = config.linkProperties.getHttpProxy();
@@ -862,6 +872,13 @@ public class WifiConfigController implements TextWatcher,
                     mProxyHostView.setText(proxyProperties.getHost());
                     mProxyPortView.setText(Integer.toString(proxyProperties.getPort()));
                     mProxyExclusionListView.setText(proxyProperties.getExclusionList());
+                }
+
+                if (mProxy != null) {
+                    mProxyHostView.setText(mProxy.getHost());
+                    mProxyPortView.setText(Integer.toString(mProxy.getPort()));
+                    mProxyUsername.setText(mProxy.getUsername());
+                    mProxyPassword.setText(mProxy.getPassword());
                 }
             }
         } else {

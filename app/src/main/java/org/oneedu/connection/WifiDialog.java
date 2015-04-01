@@ -31,16 +31,18 @@ class WifiDialog extends AlertDialog implements WifiConfigUiBase {
     private final boolean mEdit;
     private final OnClickListener mListener;
     private final AccessPoint mAccessPoint;
+    private final Proxy mProxy;
 
     private View mView;
     private WifiConfigController mController;
 
     public WifiDialog(Context context, OnClickListener listener,
-            AccessPoint accessPoint, boolean edit) {
+            AccessPoint accessPoint, boolean edit, Proxy proxy) {
         super(context, R.style.Theme_WifiDialog);
         mEdit = edit;
         mListener = listener;
         mAccessPoint = accessPoint;
+        mProxy = proxy;
     }
 
     @Override
@@ -53,7 +55,7 @@ class WifiDialog extends AlertDialog implements WifiConfigUiBase {
         mView = getLayoutInflater().inflate(R.layout.wifi_dialog, null);
         setView(mView);
         setInverseBackgroundForced(true);
-        mController = new WifiConfigController(this, mView, mAccessPoint, mEdit);
+        mController = new WifiConfigController(this, mView, mAccessPoint, mEdit, mProxy);
         super.onCreate(savedInstanceState);
         /* During creation, the submit button can be unavailable to determine
          * visibility. Right after creation, update button visibility */
