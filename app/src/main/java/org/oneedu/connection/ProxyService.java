@@ -86,7 +86,10 @@ public class ProxyService extends Service {
         String ssid = null;
         android.net.wifi.WifiInfo wifiInfo = mWifiManager.getConnectionInfo();
         if (wifiInfo != null) {
-            ssid = wifiInfo.getSSID();
+            Log.d(tag, ssid + " / " + wifiInfo.getNetworkId() + " / " + wifiInfo.getIpAddress());
+            if (wifiInfo.getNetworkId() != -1 && wifiInfo.getIpAddress() != 0) {
+                ssid = wifiInfo.getSSID();
+            }
         }
 
         toggleProxy(ssid);
@@ -140,6 +143,14 @@ public class ProxyService extends Service {
         return config;
     }
 
+    public org.oneedu.connection.Proxy getProxy(String ssid) {
+        if (ssid == null) {
+            return null;
+        }
+
+        return proxyDB.getProxy(ssid);
+    }
+
     public void toggleProxy(String ssid) {
         org.oneedu.connection.Proxy proxy = null;
         if (ssid != null) {
@@ -164,6 +175,7 @@ public class ProxyService extends Service {
             {
                 @Override
                 public void run() {
+                    Log.d(tag, "Starting proxy");
                     framework.start();
                     proxyStarted = true;
                 }
@@ -176,6 +188,7 @@ public class ProxyService extends Service {
             {
                 @Override
                 public void run() {
+                    Log.d(tag, "Stopping proxy");
                     if (framework != null){
                         framework.stop();
                     }

@@ -106,19 +106,6 @@ public class Framework {
         extractVersionFromManifest();
         _credentialManager = new CredentialManager();
 
-        if (Preferences.getPreferenceBoolean(PreferenceUtils.chainProxyEnabled, false)){
-            String proxyCredentialsUsername = Preferences.getPreference(PreferenceUtils.chainProxyUsername, null);
-            String proxyCredentialsPassword = Preferences.getPreference(PreferenceUtils.chainProxyPassword, null);
-            String proxyHost = Preferences.getPreference(PreferenceUtils.chainProxyHttp, null);
-            if (proxyHost != null && !proxyHost.equals("") && proxyCredentialsUsername != null && !proxyCredentialsUsername.equals("")){
-             String[] userNameParts =  proxyCredentialsUsername.split("\\\\");
-             String[] hostParts = proxyHost.split(":");
-              _credentialManager.addDomainCredentials(new DomainCredential(hostParts[0], userNameParts[0], userNameParts[1], proxyCredentialsPassword));
-              _credentialManager.addBasicCredentials(new BasicCredential(hostParts[0], userNameParts[0], userNameParts[1], proxyCredentialsPassword));
-              _credentialManager.addDigestCredentials(new DigestCredential(hostParts[0], userNameParts[0], userNameParts[1], proxyCredentialsPassword));
-            }
-        }
-        
         _captureData = Preferences.getPreferenceBoolean(PreferenceUtils.proxyCaptureData, false);
 
         configureHTTPClient(mContext);
@@ -594,6 +581,22 @@ public class Framework {
         } catch (Exception e) {
             _logger.warning("Error configuring the HTTPClient property " + prop + ": " + e);
         }
+
+        // dongseok0@gmail.com - move setting credentials from constructor to here for affect modified info
+        if (Preferences.getPreferenceBoolean(PreferenceUtils.chainProxyEnabled, false)){
+            String proxyCredentialsUsername = Preferences.getPreference(PreferenceUtils.chainProxyUsername, null);
+            String proxyCredentialsPassword = Preferences.getPreference(PreferenceUtils.chainProxyPassword, null);
+            //Log.d("Framework", proxyCredentialsUsername + " / " + proxyCredentialsPassword);
+            String proxyHost = Preferences.getPreference(PreferenceUtils.chainProxyHttp, null);
+            if (proxyHost != null && !proxyHost.equals("") && proxyCredentialsUsername != null && !proxyCredentialsUsername.equals("")){
+                String[] userNameParts =  proxyCredentialsUsername.split("\\\\");
+                String[] hostParts = proxyHost.split(":");
+                _credentialManager.addDomainCredentials(new DomainCredential(hostParts[0], userNameParts[0], userNameParts[1], proxyCredentialsPassword));
+                _credentialManager.addBasicCredentials(new BasicCredential(hostParts[0], userNameParts[0], userNameParts[1], proxyCredentialsPassword));
+                _credentialManager.addDigestCredentials(new DigestCredential(hostParts[0], userNameParts[0], userNameParts[1], proxyCredentialsPassword));
+            }
+        }
+
         factory.setAuthenticator(_credentialManager);
     }
     
