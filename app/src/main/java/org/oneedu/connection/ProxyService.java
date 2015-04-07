@@ -7,7 +7,9 @@ import android.net.ProxyProperties;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -15,6 +17,7 @@ import org.sandrop.webscarab.model.Preferences;
 import org.sandrop.webscarab.model.StoreException;
 import org.sandrop.webscarab.plugin.Framework;
 import org.sandrop.webscarab.plugin.proxy.Proxy;
+import org.sandroproxy.logger.Logger;
 import org.sandroproxy.utils.NetworkHostNameResolver;
 import org.sandroproxy.utils.PreferenceUtils;
 import org.sandroproxy.utils.network.ClientResolver;
@@ -36,6 +39,7 @@ public class ProxyService extends Service {
     private Context mContext;
     private ProxyDB proxyDB;
     private WifiManager mWifiManager;
+    private static Logger mLogger = null;
 
     @Override
     public void onCreate() {
@@ -54,6 +58,16 @@ public class ProxyService extends Service {
         Preferences.init(mContext);
         PreferenceManager.getDefaultSharedPreferences(mContext).edit().putBoolean(PreferenceUtils.chainProxyEnabled, true).commit();
         PreferenceManager.getDefaultSharedPreferences(mContext).edit().putString(PreferenceUtils.proxyPort, "9008").commit();
+
+        if (mLogger == null){
+            mLogger = new Logger(new Handler() {
+                @Override
+                public void handleMessage(Message msg) {
+                    String message = (String)msg.obj;
+                    Log.d("ProxyLogger", message);
+                }
+            });
+        }
 
         framework = new Framework(mContext);
         setStore(getApplicationContext());
