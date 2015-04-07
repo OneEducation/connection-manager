@@ -1,10 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.RecyclerView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/ap_list"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_marginLeft="200dp"
-    android:layout_marginRight="200dp"
-    android:layoutAnimation="@anim/list_cell_animation"
-    android:layout_marginTop="?attr/actionBarSize" />
+    android:layout_height="match_parent">
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/ap_list"
+        android:layout_width="@dimen/access_point_width"
+        android:layout_height="match_parent"
+        android:layout_centerHorizontal="true"
+        android:layoutAnimation="@anim/list_cell_animation"/>
+
+    <org.oneedu.uikit.views.RippleBackground
+        android:id="@+id/reveal"
+        android:layout_centerHorizontal="true"
+        android:layout_width="@dimen/access_point_width"
+        android:layout_height="@dimen/access_point_main_height"
+        app:rb_color="@color/oneEduPink"
+        app:rb_radius="32dp"
+        app:rb_rippleAmount="1"
+        app:rb_duration="1000"
+        app:rb_scale="6"/>
+
+    <!-- An invisible view aligned to the center of the parent. Allows other
+    views to be arranged on either side -->
+    <View
+        android:id="@+id/centerShim"
+        android:layout_height="0dp"
+        android:layout_width="0dp"
+        android:visibility="invisible"
+        android:layout_centerHorizontal="true"/>
+
+    <RelativeLayout
+        android:id="@+id/add_network_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layoutAnimation="@anim/fab_layout_animation"
+        android:layout_toRightOf="@id/centerShim"
+        android:layout_marginBottom="@dimen/fab_margin"
+        android:layout_alignParentBottom="true">
+        <!--android:background="#87878787"-->
+
+        <com.software.shell.fab.ActionButton
+            android:id="@+id/fab_add_network"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="@dimen/fab_margin"
+            fab:type="DEFAULT"
+            fab:button_color="@color/oneEduPink"
+            fab:image="@drawable/fab_plus_icon"
+            fab:image_size="24dp"
+            fab:shadow_color="#757575"
+            fab:shadow_radius="1.0dp"
+            fab:shadow_xOffset="0.5dp"
+            fab:shadow_yOffset="1.0dp"
+            fab:show_animation="@anim/fab_roll_from_right"/>
+    </RelativeLayout>
+</RelativeLayout>

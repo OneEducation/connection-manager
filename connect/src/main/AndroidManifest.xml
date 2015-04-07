@@ -2,7 +2,7 @@
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="org.oneedu.connect" >
+    package="org.oneedu.connection" >
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -25,11 +25,11 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:name=".MainApplication"
+        android:name="org.oneedu.connection.MainApplication"
         android:theme="@style/ConnectTheme"
         tools:replace="theme, icon, label">
         <activity
-            android:name=".MainActivity"
+            android:name="org.oneedu.connection.MainActivity"
             android:label="@string/app_name"
             android:configChanges="orientation|screenSize">
             <intent-filter>

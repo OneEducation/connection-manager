@@ -1,0 +1,42 @@
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/access_point_main_height"
+    android:layout_marginStart="50dp"
+    android:layout_marginEnd="50dp">
+    <org.oneedu.connection.views.AccessPointTitleLayout
+        android:id="@+id/main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true">
+
+        <TextView
+            android:id="@+id/title"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:textColor="@color/access_point_text_color"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:duplicateParentState="true"
+            android:layout_marginBottom="5dp"/>
+
+        <TextView
+            android:id="@+id/summary"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/access_point_text_color"
+            android:layout_below="@id/title"
+            android:layout_width="wrap_content"
+            android:duplicateParentState="true"
+            android:layout_height="wrap_content" />
+
+        <ImageView
+            android:id="@+id/signal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/wifi_signal"
+            android:layout_alignParentEnd="true"
+            android:duplicateParentState="true"
+            android:contentDescription="@null" />
+    </org.oneedu.connection.views.AccessPointTitleLayout>
+</RelativeLayout>

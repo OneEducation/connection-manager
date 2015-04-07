@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.oneedu.connection">
+    package="org.oneedu.connectservice">
     <!--android:sharedUserId="android.uid.system"-->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -32,17 +32,17 @@
                 <!--<category android:name="android.intent.category.LAUNCHER" />-->
             <!--</intent-filter>-->
         <!--</activity>-->
-        <service android:name=".ProxyService">
+        <service android:name="org.oneedu.connectservice.ProxyService">
             <intent-filter>
                 <action android:name="org.oneedu.connection.PROXY" />
             </intent-filter>
         </service>
-        <receiver android:name=".ConnectivityChangeReceiver">
+        <receiver android:name="org.oneedu.connectservice.ConnectivityChangeReceiver">
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
         </receiver>
-        <service android:name=".WifiService">
+        <service android:name="org.oneedu.connectservice.WifiService">
             <intent-filter>
                 <action android:name="org.oneedu.connection.WIFI" />
             </intent-filter>

@@ -15,7 +15,7 @@
 -->
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:settings="http://schemas.android.com/apk/res/org.oneedu.connect">
+        xmlns:settings="http://schemas.android.com/apk/res/org.oneedu.connection">
     <item settings:state_connected="true" android:drawable="@drawable/wifi_signal_connected" />
     <item settings:state_encrypted="true" settings:state_connected="false" android:drawable="@drawable/wifi_signal_lock" />
     <item settings:state_encrypted="false" settings:state_connected="false" android:drawable="@drawable/wifi_signal_open" />

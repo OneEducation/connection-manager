@@ -1,6 +1,23 @@
 <resources>
     <color name="oneEduGreen">#80BA27</color>
-    <color name="oneEduBlue">#0D93D2</color>
+    <color name="oneEduGreen1">#A5CA60</color>
+    <color name="oneEduGreen2">#C5DC9A</color>
+    <color name="oneEduGreen3">#E4EECF</color>
+
     <color name="oneEduPink">#E71E6C</color>
+    <color name="oneEduPink1">#EC6A8F</color>
+    <color name="oneEduPink2">#F3A1B4</color>
+    <color name="oneEduPink3">#F9D3DB</color>
+
     <color name="oneEduGrey">#878787</color>
+    <color name="oneEduGrey1">#A7A7A7</color>
+    <color name="oneEduGrey2">#C6C6C5</color>
+    <color name="oneEduGrey3">#E3E3E3</color>
+
+    <color name="oneEduBlue">#0D93D2</color>
+    <color name="oneEduBlue1">#6DABDD</color>
+    <color name="oneEduBlue2">#A5C6EA</color>
+    <color name="oneEduBlue3">#D3E2F5</color>
+
+    <color name="rippelColor">#0099CC</color>
 </resources>
