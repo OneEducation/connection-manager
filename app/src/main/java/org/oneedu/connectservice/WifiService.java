@@ -176,6 +176,18 @@ public class WifiService extends Service {
         mWifiManager.save(config, mSaveListener);
     }
 
+    public void updateAndReconnect(final WifiConfiguration config) {
+        mWifiManager.disableNetwork(config.networkId);
+        mWifiManager.updateNetwork(config);
+        mWifiManager.saveConfiguration();
+        for (WifiConfiguration wifi : mWifiManager.getConfiguredNetworks()) {
+            if (wifi.SSID.equals(config.SSID)) {
+                connect(wifi.networkId);
+                break;
+            }
+        }
+    }
+
     private void handleEvent(Context context, Intent intent) {
         Log.d(tag, intent.toString());
         String action = intent.getAction();
@@ -216,7 +228,8 @@ public class WifiService extends Service {
 //                return;
 //            }
         } else if (WifiManager.RSSI_CHANGED_ACTION.equals(action)) {
-            updateConnectionState(null);
+            // dongseok : Do not re-construct ap list to prevent too frequent updating
+            //updateConnectionState(null);
         }
     }
 
