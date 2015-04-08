@@ -2,6 +2,7 @@ package org.oneedu.connection.controllers;
 
 import android.app.Activity;
 import android.graphics.Point;
+import android.net.NetworkInfo;
 import android.net.wifi.WifiConfiguration;
 import android.os.Bundle;
 import android.view.Menu;
@@ -144,8 +145,17 @@ public class APListController implements WifiAdapter.OnItemClickListener, View.O
         } else if (config.networkId != -1) {
             if (mSelectedAccessPoint != null) {
                 WifiConfiguration con = mProxyService.addOrUpdateProxy(configController);
-                mWifiService.save(con);
-                mContext.getFragmentManager().popBackStack();
+
+                final NetworkInfo.DetailedState state = mSelectedAccessPoint.getState();
+                if (state != null && state.ordinal() == 5) {
+                    // modifying connected network : update -> disable -> reconnect
+                    mWifiService.updateAndReconnect(con);
+                    showConnectingDialog(mDialog.mView);
+                } else {
+                    // just save
+                    mWifiService.save(con);
+                    mContext.getFragmentManager().popBackStack();
+                }
             }
         } else {
             WifiConfiguration con = mProxyService.addOrUpdateProxy(configController);
