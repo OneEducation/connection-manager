@@ -3,6 +3,8 @@ package org.oneedu.connectservice;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.ProxyProperties;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
@@ -36,6 +38,7 @@ public class ProxyService extends Service {
     private Context mContext;
     private ProxyDB proxyDB;
     private WifiManager mWifiManager;
+    private ConnectivityManager mConnectivityManager;
 
     @Override
     public void onCreate() {
@@ -43,6 +46,7 @@ public class ProxyService extends Service {
 
         mContext = getApplicationContext();
         mWifiManager = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
+        mConnectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
 
         proxyDB = new ProxyDB(mContext);
         try {
@@ -84,13 +88,22 @@ public class ProxyService extends Service {
 
         // fix - network connected and restarting service
         String ssid = null;
-        android.net.wifi.WifiInfo wifiInfo = mWifiManager.getConnectionInfo();
-        if (wifiInfo != null) {
+        android.net.wifi.WifiInfo wifiInfo = null;
+        NetworkInfo networkInfo = null;
 
-            if (wifiInfo.getNetworkId() != -1 && wifiInfo.getIpAddress() != 0) {
+        if (intent.getAction().equals("org.oneedu.connection.PROXY.WIFI_STATE_CHANGE")) {
+            wifiInfo = intent.getParcelableExtra(WifiManager.EXTRA_WIFI_INFO);
+            networkInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
+        } else {
+            wifiInfo = mWifiManager.getConnectionInfo();
+            networkInfo = mConnectivityManager.getActiveNetworkInfo();
+        }
+
+        if (wifiInfo != null && networkInfo != null) {
+            Log.d(tag, wifiInfo.getSSID() + " : " + networkInfo.getDetailedState().name());
+            if (networkInfo.getDetailedState() == NetworkInfo.DetailedState.CONNECTED) {
                 ssid = wifiInfo.getSSID();
             }
-            Log.d(tag, ssid + " / " + wifiInfo.getNetworkId() + " / " + wifiInfo.getIpAddress());
         }
 
         toggleProxy(ssid);

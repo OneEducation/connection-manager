@@ -35,11 +35,13 @@
         <service android:name="org.oneedu.connectservice.ProxyService">
             <intent-filter>
                 <action android:name="org.oneedu.connection.PROXY" />
+                <action android:name="org.oneedu.connection.PROXY.WIFI_STATE_CHANGE" />
             </intent-filter>
         </service>
         <receiver android:name="org.oneedu.connectservice.ConnectivityChangeReceiver">
             <intent-filter>
-                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+                <!--<action android:name="android.net.conn.CONNECTIVITY_CHANGE" />-->
+                <action android:name="android.net.wifi.STATE_CHANGE" />
             </intent-filter>
         </receiver>
         <service android:name="org.oneedu.connectservice.WifiService">
