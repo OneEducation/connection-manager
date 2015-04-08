@@ -91,7 +91,7 @@ public class ProxyService extends Service {
         android.net.wifi.WifiInfo wifiInfo = null;
         NetworkInfo networkInfo = null;
 
-        if (intent.getAction().equals("org.oneedu.connection.PROXY.WIFI_STATE_CHANGE")) {
+        if (intent != null && intent.getAction().equals("org.oneedu.connection.PROXY.WIFI_STATE_CHANGE")) {
             wifiInfo = intent.getParcelableExtra(WifiManager.EXTRA_WIFI_INFO);
             networkInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
         } else {
