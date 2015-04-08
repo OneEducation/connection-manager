@@ -1,1 +1,1 @@
-include ':app', ':sandroProxyLib', ':connect', ':uikit', ':SwitchButton/SwitchButton/library'
+include ':app', ':sandroProxyLib', ':connect', ':uikit'
