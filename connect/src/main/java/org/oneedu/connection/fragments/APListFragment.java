@@ -12,6 +12,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.widget.Toast;
 
 import org.oneedu.connection.controllers.APListController;
 import org.oneedu.connectservice.AccessPoint;
@@ -39,7 +41,7 @@ public class APListFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.access_point_list, null);
+        return inflater.inflate(R.layout.access_point_list, container, false);
     }
 
     @Override
@@ -49,13 +51,40 @@ public class APListFragment extends Fragment {
         Context context = getActivity();
         mApListView = (RecyclerView)view.findViewById(R.id.ap_list);
 
-        mApListView.setHasFixedSize(true);
+        mApListView.getLayoutAnimation().getAnimation().setAnimationListener(new Animation.AnimationListener() {
+            int count = 0;
+            @Override
+            public void onAnimationStart(Animation animation) {
+                count++;
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                count--;
+
+                if (count == 0) {
+                    mWifiAdapter.setClickable(true);
+                    ((MainActivity)getActivity()).mWifiService.setOnUpdateAccessPointListener(new WifiService.OnUpdateAccessPointListener() {
+                        @Override
+                        public void onUpdateAPListener(ArrayList<AccessPoint> apns) {
+                            Log.d("onUpdateAPListener", ""+apns.size());
+                            mWifiAdapter.set(apns);
+                            mWifiAdapter.notifyDataSetChanged();
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
         LinearLayoutManager llm = new LinearLayoutManager(context);
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         mApListView.setLayoutManager(llm);
 
-
-        //((MainActivity)getActivity()).mWifiService.updateAccessPoints();
         mWifiAdapter = new WifiAdapter(context, ((MainActivity)context).mWifiService.getAPList());
         mApListView.setAdapter(mWifiAdapter);
 
@@ -63,20 +92,11 @@ public class APListFragment extends Fragment {
         mWifiAdapter.setOnItemClickListener(mController);
 
         view.findViewById(R.id.fab_add_network).setOnClickListener(mController);
+    }
 
-        ((MainActivity)getActivity()).mWifiService.setOnUpdateAccessPointListener(new WifiService.OnUpdateAccessPointListener() {
-            @Override
-            public void onUpdateAPListener(ArrayList<AccessPoint> apns) {
-
-                Log.d("APList", ""+apns.size());
-                mWifiAdapter.set(apns);
-                mWifiAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onUpdateConnectionState(WifiInfo wifiInfo, NetworkInfo.DetailedState state) {
-
-            }
-        });
+    @Override
+    public void onPause() {
+        super.onPause();
+        ((MainActivity)getActivity()).mWifiService.setOnUpdateAccessPointListener(null);
     }
 }
