@@ -21,7 +21,6 @@ import java.util.List;
  */
 public class WifiAdapter extends RecyclerView.Adapter<WifiAdapter.AccessPointViewHolder> {
     int mSelectedAPPosition = -1;
-    private boolean mClickable;
     private Context mContext;
     private List<AccessPoint> mDataSet;
     private OnItemClickListener onItemClickListener;
@@ -42,10 +41,6 @@ public class WifiAdapter extends RecyclerView.Adapter<WifiAdapter.AccessPointVie
 
     public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
-    }
-
-    public void setClickable(boolean clickable) {
-        mClickable = clickable;
     }
 
     // Provide a reference to the views for each data item
@@ -104,12 +99,6 @@ public class WifiAdapter extends RecyclerView.Adapter<WifiAdapter.AccessPointVie
             v.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (!mClickable) {
-                        return;
-                    }
-
-                    v.clearAnimation();
-
                     final int currentPos = getPosition();
 
                     if (mSelectedAPPosition == currentPos) {
@@ -234,8 +223,22 @@ public class WifiAdapter extends RecyclerView.Adapter<WifiAdapter.AccessPointVie
     }
 
     public void set(ArrayList<AccessPoint> list) {
+        List<AccessPoint> oldList = mDataSet;
         mDataSet = list;
-        //notifyDataSetChanged();
+
+        for(int i = 0; i < Math.min(oldList.size(), mDataSet.size()); i++) {
+            AccessPoint oldAP = oldList.get(i);
+            AccessPoint newAP = mDataSet.get(i);
+            if (!newAP.equals(oldAP)) {
+                notifyItemChanged(i);
+            }
+        }
+
+        if (oldList.size() > mDataSet.size()) {
+            notifyItemRangeRemoved(mDataSet.size(), oldList.size() - mDataSet.size());
+        } else {
+            notifyItemRangeInserted(oldList.size(), mDataSet.size() - oldList.size());
+        }
     }
 
     // Create new views (invoked by the layout manager)

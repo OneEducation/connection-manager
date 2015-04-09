@@ -51,36 +51,6 @@ public class APListFragment extends Fragment {
         Context context = getActivity();
         mApListView = (RecyclerView)view.findViewById(R.id.ap_list);
 
-        mApListView.getLayoutAnimation().getAnimation().setAnimationListener(new Animation.AnimationListener() {
-            int count = 0;
-            @Override
-            public void onAnimationStart(Animation animation) {
-                count++;
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                count--;
-
-                if (count == 0) {
-                    mWifiAdapter.setClickable(true);
-                    ((MainActivity)getActivity()).mWifiService.setOnUpdateAccessPointListener(new WifiService.OnUpdateAccessPointListener() {
-                        @Override
-                        public void onUpdateAPListener(ArrayList<AccessPoint> apns) {
-                            Log.d("onUpdateAPListener", ""+apns.size());
-                            mWifiAdapter.set(apns);
-                            mWifiAdapter.notifyDataSetChanged();
-                        }
-                    });
-                }
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-
         LinearLayoutManager llm = new LinearLayoutManager(context);
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         mApListView.setLayoutManager(llm);
@@ -92,6 +62,14 @@ public class APListFragment extends Fragment {
         mWifiAdapter.setOnItemClickListener(mController);
 
         view.findViewById(R.id.fab_add_network).setOnClickListener(mController);
+
+        ((MainActivity)getActivity()).mWifiService.setOnUpdateAccessPointListener(new WifiService.OnUpdateAccessPointListener() {
+            @Override
+            public void onUpdateAPListener(ArrayList<AccessPoint> apns) {
+                Log.d("onUpdateAPListener", ""+apns.size());
+                mWifiAdapter.set(apns);
+            }
+        });
     }
 
     @Override
