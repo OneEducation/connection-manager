@@ -83,7 +83,7 @@ public class MainActivity extends BaseActivity {
                         case WifiManager.WIFI_STATE_ENABLING:
                             getFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                             mWifiStateView.setVisibility(View.VISIBLE);
-                            mWifiStateView.setText("Wifi is turning on...");
+                            mWifiStateView.setText(R.string.wifi_starting);
                             break;
                         case WifiManager.WIFI_STATE_ENABLED:
                             mWifiStateView.setVisibility(View.GONE);
@@ -94,12 +94,12 @@ public class MainActivity extends BaseActivity {
                         case WifiManager.WIFI_STATE_DISABLING:
                             getFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                             mWifiStateView.setVisibility(View.VISIBLE);
-                            mWifiStateView.setText("Wifi is turning off...");
+                            mWifiStateView.setText(R.string.wifi_stopping);
                             break;
                         case WifiManager.WIFI_STATE_DISABLED:
                             getFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                             mWifiStateView.setVisibility(View.VISIBLE);
-                            mWifiStateView.setText("Wifi is turned off.");
+                            mWifiStateView.setText(R.string.wifi_disabled);
                             break;
                         default:
                             break;
