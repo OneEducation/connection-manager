@@ -42,6 +42,7 @@ public class WifiService extends Service {
     private ArrayList<AccessPoint>      mAPList = new ArrayList<AccessPoint>();
     private AtomicBoolean               mConnected = new AtomicBoolean(false);
     private OnUpdateAccessPointListener mOnAPUpdateListener;
+    private onUpdateConnectionStateListener mOnUpdateConnectionStateListener;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -60,11 +61,21 @@ public class WifiService extends Service {
 
     public interface OnUpdateAccessPointListener {
         abstract void onUpdateAPListener(ArrayList<AccessPoint> apns);
-        abstract void onUpdateConnectionState(WifiInfo wifiInfo, NetworkInfo.DetailedState state);
     }
 
     public void setOnUpdateAccessPointListener(OnUpdateAccessPointListener onUpdateAccessPointListener) {
         mOnAPUpdateListener = onUpdateAccessPointListener;
+        if (mOnAPUpdateListener != null && mAPList.size() > 0) {
+            mOnAPUpdateListener.onUpdateAPListener(mAPList);
+        }
+    }
+
+    public interface onUpdateConnectionStateListener {
+        abstract void onUpdateConnectionStateChanged(WifiInfo wifiInfo, NetworkInfo.DetailedState state, int supplicantError);
+    }
+
+    public void setOnUpdateConnectionStateListener(onUpdateConnectionStateListener onUpdateConnectionStateListener) {
+        mOnUpdateConnectionStateListener = onUpdateConnectionStateListener;
     }
 
     // This is the object that receives interactions from clients.  See
@@ -213,20 +224,24 @@ public class WifiService extends Service {
                 // Make sure a lost connection is updated as well.
                 updateConnectionState(null);
             }
+
+            if (mOnUpdateConnectionStateListener != null) {
+                int supplicantError = intent.getIntExtra(WifiManager.EXTRA_SUPPLICANT_ERROR, 0);
+                mOnUpdateConnectionStateListener.onUpdateConnectionStateChanged(mWifiManager.getConnectionInfo(),
+                        android.net.wifi.WifiInfo.getDetailedStateOf(state), supplicantError);
+            }
+
         } else if (WifiManager.NETWORK_STATE_CHANGED_ACTION.equals(action)) {
             NetworkInfo info = (NetworkInfo) intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
             mConnected.set(info.isConnected());
-//            changeNextButtonState(info.isConnected());
             updateAccessPoints();
             updateConnectionState(info.getDetailedState());
-//            if (mAutoFinishOnConnection && info.isConnected()) {
-//                Activity activity = getActivity();
-//                if (activity != null) {
-//                    activity.setResult(Activity.RESULT_OK);
-//                    activity.finish();
-//                }
-//                return;
-//            }
+
+            if (mOnUpdateConnectionStateListener != null) {
+                mOnUpdateConnectionStateListener.onUpdateConnectionStateChanged(mWifiManager.getConnectionInfo(),
+                        info.getDetailedState(), 0);
+            }
+
         } else if (WifiManager.RSSI_CHANGED_ACTION.equals(action)) {
             // dongseok : Do not re-construct ap list to prevent too frequent updating
             //updateConnectionState(null);
@@ -278,7 +293,7 @@ public class WifiService extends Service {
         }
 
         if (mOnAPUpdateListener != null) {
-            mOnAPUpdateListener.onUpdateConnectionState(mLastInfo, mLastState);
+            mOnAPUpdateListener.onUpdateAPListener(mAPList);
         }
     }
 

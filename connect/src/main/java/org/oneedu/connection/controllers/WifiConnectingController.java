@@ -2,6 +2,7 @@ package org.oneedu.connection.controllers;
 
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -18,7 +19,6 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 
 /**
  * Created by dongseok0 on 27/03/15.
@@ -37,41 +37,56 @@ public class WifiConnectingController {
         mAP = ap;
         mWifiService = service;
 
-        mWifiService.setOnUpdateAccessPointListener(new WifiService.OnUpdateAccessPointListener() {
+        mWifiService.setOnUpdateConnectionStateListener(new WifiService.onUpdateConnectionStateListener() {
             @Override
-            public void onUpdateAPListener(ArrayList<AccessPoint> apns) {
-
-            }
-
-            @Override
-            public void onUpdateConnectionState(WifiInfo wifiInfo, NetworkInfo.DetailedState state) {
-                Log.d("wifiConnect", "Ssid : " + wifiInfo.getSSID());
-                Log.d("wifiConnect", "state: " + state.ordinal());
+            public void onUpdateConnectionStateChanged(WifiInfo wifiInfo, NetworkInfo.DetailedState state, int supplicantError) {
+                Log.d("ConnectionStateChanged", wifiInfo.getSSID() + " : " + state.name() + " / supplicantError: " + supplicantError);
                 if (mView == null) {
                     mView = mFragment.getView();
                 }
 
-                if (AccessPoint.convertToQuotedString(mAP.ssid).equals(wifiInfo.getSSID())
-                        && state.ordinal() == 5) {
-                    mWifiService.setOnUpdateAccessPointListener(null);
-                    ((TextView)mView.findViewById(R.id.connectToNetwork)).setTextColor(mFragment.getResources().getColor(R.color.oneEduGreen));
-                    ((ProgressBar)mView.findViewById(R.id.connectToNetworkProgress)).done();
-                    networkTest();
+                if (AccessPoint.convertToQuotedString(mAP.ssid).equals(wifiInfo.getSSID())) {
+                    if (supplicantError == WifiManager.ERROR_AUTHENTICATING) {
+                        accessPointResult(false);
+                        return;
+                    }
+
+                    switch (state) {
+                        case CONNECTED:
+                            accessPointResult(true);
+                            break;
+
+                        case BLOCKED:
+                        case FAILED:
+                            accessPointResult(false);
+                            break;
+                    }
                 }
             }
         });
     }
 
-    private void networkTestResult(final boolean result) {
-        Log.d("WifiConnecting", "networkTestResult: "+result);
+    private void accessPointResult(final boolean result) {
+        mWifiService.setOnUpdateConnectionStateListener(null);
+
+        if (result) {
+            ((TextView)mView.findViewById(R.id.connectToNetwork)).setTextColor(mFragment.getResources().getColor(R.color.oneEduGreen));
+            ((ProgressBar)mView.findViewById(R.id.connectToNetworkProgress)).done();
+            internetTest();
+        } else {
+            ((TextView) mView.findViewById(R.id.connectToNetwork)).setTextColor(mFragment.getResources().getColor(R.color.oneEduPink));
+            ((ProgressBar) mView.findViewById(R.id.connectToNetworkProgress)).fail();
+        }
+    }
+
+    private void internetTestResult(final boolean result) {
+        Log.d("WifiConnecting", "internetTestResult: "+result);
         if (mFragment == null) return;
 
         mFragment.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 if (!result) {
-                    //fail
-
                     ((TextView) mView.findViewById(R.id.connectToInternet)).setTextColor(mFragment.getResources().getColor(R.color.oneEduPink));
                     ((ProgressBar) mView.findViewById(R.id.connectToInternetProgress)).fail();
                 } else {
@@ -90,7 +105,7 @@ public class WifiConnectingController {
     }
 
     private void popFragment(String stage) {
-        mWifiService.setOnUpdateAccessPointListener(null);
+        mWifiService.setOnUpdateConnectionStateListener(null);
         mFragment.getFragmentManager().popBackStack(stage, 0);
     }
 
@@ -113,24 +128,25 @@ public class WifiConnectingController {
         return false;
     }
 
-    private void networkTest() {
+    private void internetTest() {
+        mView.findViewById(R.id.l_connectInternet).setVisibility(View.VISIBLE);
+
         if (mHandler == null) {
             mHandler = new Handler() {
                 int retry = 3;
 
                 @Override
                 public void handleMessage(Message msg) {
-                    Log.d("WifiConnecting", "handleMessage:" + msg.what);
                     switch(msg.what) {
                         case 1:
-                            networkTestResult(true);
+                            internetTestResult(true);
                             break;
 
                         case 0:
                             if (--retry > 0) {
-                                networkTest();
+                                internetTest();
                             } else {
-                                networkTestResult(false);
+                                internetTestResult(false);
                             }
                             break;
                     }
