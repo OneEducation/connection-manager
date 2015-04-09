@@ -265,7 +265,9 @@
                                     android:inputType="number"
                                     android:singleLine="true" />
                             </LinearLayout>
-                            <LinearLayout style="@style/wifi_item">
+                            <LinearLayout
+                                style="@style/wifi_item"
+                                android:visibility="gone">
                                 <TextView
                                     style="@style/wifi_item_label"
                                     android:text="@string/proxy_exclusionlist_label" />
