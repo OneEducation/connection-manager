@@ -11,7 +11,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.oneedu.connection.R;
-import org.oneedu.connection.ResizeHeightAnimation;
 import org.oneedu.connection.controllers.WifiConnectingController;
 import org.oneedu.connection.views.AccessPointTitleLayout;
 import org.oneedu.connectservice.AccessPoint;
@@ -21,8 +20,6 @@ import org.oneedu.connectservice.AccessPoint;
  */
 public class WifiConnectingFragment extends Fragment {
     private View mView;
-    private int mStartWidth;
-    private int mStartHeight;
     private WifiConnectingController mController;
     private int mLeftDelta;
     private int mTopDelta;
@@ -34,13 +31,10 @@ public class WifiConnectingFragment extends Fragment {
         View view = inflater.inflate(R.layout.wifi_connecting, null);
         mView = view.findViewById(R.id.cardView);
         mTitleLayout = (AccessPointTitleLayout)view.findViewById(R.id.main);
-        //mAddNetworkBtn = view.findViewById(R.id)
 
         Bundle bundle = getArguments();
         final int thumbnailTop = bundle.getInt(".top");
         final int thumbnailLeft = bundle.getInt(".left");
-        mStartWidth = bundle.getInt(".width");
-        mStartHeight = bundle.getInt(".height");
 
         if (savedInstanceState == null) {
             ViewTreeObserver observer = mView.getViewTreeObserver();
@@ -69,32 +63,16 @@ public class WifiConnectingFragment extends Fragment {
     }
 
     public void runEnterAnimation() {
-
-        final int targetHeight = mView.getHeight();
-        //mView.getLayoutParams().width = mStartWidth;
-        mView.getLayoutParams().height = mStartHeight;
-
         mView.setTranslationX(mLeftDelta);
         mView.setTranslationY(mTopDelta);
-
-        mView.requestLayout();
-
-        mView.post(new Runnable() {
-            @Override
-            public void run() {
-                mView.animate().translationY(0).setDuration(mTopDelta > 0 ? 400 : 0)
-                        .setStartDelay(500)
-                        .withEndAction(new Runnable() {
-                    @Override
-                    public void run() {
-                        ResizeHeightAnimation resizeAnimation = new ResizeHeightAnimation(mView, targetHeight);
-                        resizeAnimation.setDuration(400);
-                        resizeAnimation.setStartOffset(400);
-                        mView.startAnimation(resizeAnimation);
-                    }
-                });
-            }
-        });
+        mView.animate().translationY(0).setDuration(mTopDelta > 0 ? 400 : 0)
+            .setStartDelay(500)
+            .withEndAction(new Runnable() {
+                @Override
+                public void run() {
+                    mView.findViewById(R.id.l_connectNetwork).setVisibility(View.VISIBLE);
+                }
+            }).start();
     }
 
     public void setTitle(AccessPoint ap) {

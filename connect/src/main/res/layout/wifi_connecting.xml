@@ -25,13 +25,17 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:animateLayoutChanges="true"
+            android:layout_marginBottom="20dp"
             android:orientation="vertical">
 
             <include layout="@layout/access_point_title_layout"/>
 
             <RelativeLayout
+                android:id="@+id/l_connectNetwork"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
+                android:visibility="gone"
                 android:layout_marginStart="50dp"
                 android:layout_marginEnd="50dp">
 
@@ -41,6 +45,7 @@
                     android:layout_height="wrap_content"
                     android:textSize="20sp"
                     android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
                     android:text="Connecting to network..."/>
                 <org.oneedu.uikit.widgets.ProgressBar
                     android:id="@+id/connectToNetworkProgress"
@@ -63,8 +68,10 @@
             </RelativeLayout>
 
             <RelativeLayout
+                android:id="@+id/l_connectInternet"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
+                android:visibility="gone"
                 android:layout_marginStart="50dp"
                 android:layout_marginEnd="50dp">
 
@@ -74,6 +81,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentStart="true"
                     android:textSize="20sp"
+                    android:layout_centerVertical="true"
                     android:text="Connecting to internet..."/>
                 <org.oneedu.uikit.widgets.ProgressBar
                     android:id="@+id/connectToInternetProgress"
