@@ -226,13 +226,8 @@ public class WifiAdapter extends RecyclerView.Adapter<WifiAdapter.AccessPointVie
         List<AccessPoint> oldList = mDataSet;
         mDataSet = list;
 
-        for(int i = 0; i < Math.min(oldList.size(), mDataSet.size()); i++) {
-            AccessPoint oldAP = oldList.get(i);
-            AccessPoint newAP = mDataSet.get(i);
-            if (!newAP.equals(oldAP)) {
-                notifyItemChanged(i);
-            }
-        }
+        // just change all instead of comparing them
+        notifyItemRangeChanged(0, Math.min(oldList.size(), mDataSet.size()));
 
         if (oldList.size() > mDataSet.size()) {
             notifyItemRangeRemoved(mDataSet.size(), oldList.size() - mDataSet.size());
