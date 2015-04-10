@@ -41,6 +41,9 @@ public class WifiConnectingController {
         mWifiService.setOnUpdateConnectionStateListener(new WifiService.onUpdateConnectionStateListener() {
             @Override
             public void onUpdateConnectionStateChanged(WifiInfo wifiInfo, NetworkInfo.DetailedState state, int supplicantError) {
+                if (mFragment == null || !mFragment.isAdded())
+                    return;
+
                 Log.d("ConnectionStateChanged", wifiInfo.getSSID() + " : " + state.name() + " / supplicantError: " + supplicantError);
 
                 // When getting authenticate error event from supplicant_state_change_action, there is no info about which network.
@@ -52,7 +55,7 @@ public class WifiConnectingController {
                     mView = mFragment.getView();
                 }
 
-                if (AccessPoint.convertToQuotedString(mAP.ssid).equals(mLastInfo.getSSID())) {
+                if (mLastInfo != null && AccessPoint.convertToQuotedString(mAP.ssid).equals(mLastInfo.getSSID())) {
                     if (supplicantError == WifiManager.ERROR_AUTHENTICATING) {
                         accessPointResult(false);
                         return;
@@ -88,7 +91,8 @@ public class WifiConnectingController {
 
     private void internetTestResult(final boolean result) {
         Log.d("WifiConnecting", "internetTestResult: "+result);
-        if (mFragment == null) return;
+        if (mFragment == null || !mFragment.isAdded())
+            return;
 
         mFragment.getActivity().runOnUiThread(new Runnable() {
             @Override
