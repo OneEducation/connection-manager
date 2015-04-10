@@ -240,7 +240,7 @@
     <!-- Label for the spinner to show ip settings [CHAR LIMIT=25] -->
     <string name="wifi_ip_settings">IP settings</string>
     <!-- Hint for unchanged fields -->
-    <string name="wifi_unchanged">(unchanged)</string>
+    <string name="wifi_unchanged">Password (unchanged)</string>
     <!-- Hint for unspecified fields -->
     <string name="wifi_unspecified">(unspecified)</string>
     <!-- Summary for the remembered network. -->

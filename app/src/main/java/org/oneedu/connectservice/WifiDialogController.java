@@ -930,7 +930,7 @@ public class WifiDialogController implements TextWatcher,
                 }
             }
         } else {
-            mView.findViewById(R.id.proxy_warning_limited_support).setVisibility(View.GONE);
+            //mView.findViewById(R.id.proxy_warning_limited_support).setVisibility(View.GONE);
             mView.findViewById(R.id.proxy_fields).setVisibility(View.GONE);
         }
         return ret;
