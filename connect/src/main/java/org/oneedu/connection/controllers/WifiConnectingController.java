@@ -30,6 +30,7 @@ public class WifiConnectingController {
     private View mView;
     private AccessPoint mAP;
     private Handler mHandler;
+    private WifiInfo mLastInfo;
 
     public WifiConnectingController(WifiConnectingFragment fragment, AccessPoint ap, WifiService service) {
         mFragment = fragment;
@@ -41,11 +42,17 @@ public class WifiConnectingController {
             @Override
             public void onUpdateConnectionStateChanged(WifiInfo wifiInfo, NetworkInfo.DetailedState state, int supplicantError) {
                 Log.d("ConnectionStateChanged", wifiInfo.getSSID() + " : " + state.name() + " / supplicantError: " + supplicantError);
+
+                // When getting authenticate error event from supplicant_state_change_action, there is no info about which network.
+                // So keep the last wifi info and use it if there is no active wifi info.
+                if (!"0x".equals(wifiInfo.getSSID())) {
+                    mLastInfo = wifiInfo;
+                }
                 if (mView == null) {
                     mView = mFragment.getView();
                 }
 
-                if (AccessPoint.convertToQuotedString(mAP.ssid).equals(wifiInfo.getSSID())) {
+                if (AccessPoint.convertToQuotedString(mAP.ssid).equals(mLastInfo.getSSID())) {
                     if (supplicantError == WifiManager.ERROR_AUTHENTICATING) {
                         accessPointResult(false);
                         return;

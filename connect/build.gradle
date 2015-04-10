@@ -17,8 +17,8 @@ android {
         applicationId "org.oneedu.connection"
         minSdkVersion 18
         targetSdkVersion 21
-        versionCode 201
-        versionName "2.0.1"
+        versionCode 202
+        versionName "2.0.2"
     }
     buildTypes {
         release {

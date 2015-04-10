@@ -227,6 +227,7 @@ public class WifiService extends Service {
 
             if (mOnUpdateConnectionStateListener != null) {
                 int supplicantError = intent.getIntExtra(WifiManager.EXTRA_SUPPLICANT_ERROR, 0);
+
                 mOnUpdateConnectionStateListener.onUpdateConnectionStateChanged(mWifiManager.getConnectionInfo(),
                         android.net.wifi.WifiInfo.getDetailedStateOf(state), supplicantError);
             }
@@ -237,8 +238,9 @@ public class WifiService extends Service {
             updateAccessPoints();
             updateConnectionState(info.getDetailedState());
 
-            if (mOnUpdateConnectionStateListener != null) {
-                mOnUpdateConnectionStateListener.onUpdateConnectionStateChanged(mWifiManager.getConnectionInfo(),
+            WifiInfo wifiInfo = intent.getParcelableExtra(WifiManager.EXTRA_WIFI_INFO);
+            if (mOnUpdateConnectionStateListener != null && wifiInfo != null) {
+                mOnUpdateConnectionStateListener.onUpdateConnectionStateChanged(wifiInfo,
                         info.getDetailedState(), 0);
             }
 
