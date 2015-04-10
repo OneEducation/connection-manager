@@ -73,12 +73,12 @@ public class APListController implements WifiAdapter.OnItemClickListener, View.O
                     case R.id.button3: //MENU_ID_CONNECT:
                         if (mSelectedAccessPoint.networkId != -1) {     //saved network
                             mWifiService.connect(mSelectedAccessPoint.networkId);
-                            showConnectingDialog(parent);
+                            showConnectingDialog(parent, mSelectedAccessPoint);
                         } else if (mSelectedAccessPoint.security == AccessPoint.SECURITY_NONE) {
                             /** Bypass dialog for unsecured networks */
                             mSelectedAccessPoint.generateOpenNetworkConfig();
                             mWifiService.connect(mSelectedAccessPoint.getConfig());
-                            showConnectingDialog(parent);
+                            showConnectingDialog(parent, mSelectedAccessPoint);
 
                         } else {
                             showDialog(parent, false);
@@ -150,7 +150,7 @@ public class APListController implements WifiAdapter.OnItemClickListener, View.O
                 if (state != null && state.ordinal() == 5) {
                     // modifying connected network : update -> disable -> reconnect
                     mWifiService.updateAndReconnect(con);
-                    showConnectingDialog(mDialog.mView);
+                    showConnectingDialog(mDialog.mView, mSelectedAccessPoint);
                 } else {
                     // just save
                     mWifiService.save(con);
@@ -165,12 +165,14 @@ public class APListController implements WifiAdapter.OnItemClickListener, View.O
                 mContext.getFragmentManager().popBackStack();
             } else {
                 mWifiService.connect(con);
-                showConnectingDialog(mDialog.mView);
+                AccessPoint accessPoint = mSelectedAccessPoint != null ?
+                        mSelectedAccessPoint : new AccessPoint(mContext, con);
+                showConnectingDialog(mDialog.mView, accessPoint);
             }
         }
     }
 
-    private void showConnectingDialog(View v) {
+    private void showConnectingDialog(View v, AccessPoint accessPoint) {
 
         int[] screenLocation = new int[2];
         v.getLocationOnScreen(screenLocation);
@@ -186,7 +188,7 @@ public class APListController implements WifiAdapter.OnItemClickListener, View.O
 
         WifiConnectingFragment fragment = new WifiConnectingFragment();
         fragment.setArguments(extras);
-        fragment.setController(new WifiConnectingController(fragment, mSelectedAccessPoint, mWifiService));
+        fragment.setController(new WifiConnectingController(fragment, accessPoint, mWifiService));
 
         mContext.getFragmentManager().beginTransaction()
                 .addToBackStack("Connecting")
@@ -250,8 +252,8 @@ public class APListController implements WifiAdapter.OnItemClickListener, View.O
         swingBtn(v, new Runnable() {
             @Override
             public void run() {
-                WifiDialogFragment dialog = new WifiDialogFragment();
-                dialog.setArgs(APListController.this, null, false, null);
+                mDialog = new WifiDialogFragment();
+                mDialog.setArgs(APListController.this, null, false, null);
 
                 //mRevealColorView.animate().alpha(0.0f).setDuration(300).start();
                 //mRevealColorView.hide(mRevealColorView.getWidth() / 2, 0, mFragment.getResources().getColor(android.R.color.transparent), 0, 300, null);
@@ -265,12 +267,12 @@ public class APListController implements WifiAdapter.OnItemClickListener, View.O
                 extras.putInt(".top", screenLocation[1]);
                 extras.putInt(".width", mRevealColorView.getWidth());
                 extras.putInt(".height", mRevealColorView.getHeight());
-                dialog.setArguments(extras);
+                mDialog.setArguments(extras);
 
                 mContext.getFragmentManager().beginTransaction()
                         .addToBackStack("AddNetwork")
                         .setCustomAnimations(R.anim.fade_in, R.anim.fade_out, 0, R.anim.fade_out)
-                        .replace(R.id.container, dialog)
+                        .replace(R.id.container, mDialog)
                         .commit();
             }
         });
