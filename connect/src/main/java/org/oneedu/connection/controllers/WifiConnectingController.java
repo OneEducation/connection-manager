@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Date;
 
 /**
  * Created by dongseok0 on 27/03/15.
@@ -31,6 +32,7 @@ public class WifiConnectingController {
     private AccessPoint mAP;
     private Handler mHandler;
     private WifiInfo mLastInfo;
+    private Handler mTimeoutHandler;
 
     public WifiConnectingController(WifiConnectingFragment fragment, AccessPoint ap, WifiService service) {
         mFragment = fragment;
@@ -41,10 +43,11 @@ public class WifiConnectingController {
         mWifiService.setOnUpdateConnectionStateListener(new WifiService.onUpdateConnectionStateListener() {
             @Override
             public void onUpdateConnectionStateChanged(WifiInfo wifiInfo, NetworkInfo.DetailedState state, int supplicantError) {
-                if (mFragment == null || !mFragment.isAdded())
-                    return;
-
                 Log.d("ConnectionStateChanged", wifiInfo.getSSID() + " : " + state.name() + " / supplicantError: " + supplicantError);
+
+                if (mFragment == null || !mFragment.isAdded()) {
+                    return;
+                }
 
                 // When getting authenticate error event from supplicant_state_change_action, there is no info about which network.
                 // So keep the last wifi info and use it if there is no active wifi info.
@@ -74,10 +77,26 @@ public class WifiConnectingController {
                 }
             }
         });
+
+        mTimeoutHandler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                accessPointResult(false);
+            }
+        };
+        mTimeoutHandler.sendEmptyMessageDelayed(1, 30000);
     }
 
     private void accessPointResult(final boolean result) {
         mWifiService.setOnUpdateConnectionStateListener(null);
+        mTimeoutHandler.removeMessages(1);
+
+        if (mFragment == null || !mFragment.isAdded())
+            return;
+
+        if (mView == null) {
+            mView = mFragment.getView();
+        }
 
         if (result) {
             ((TextView)mView.findViewById(R.id.connectToNetwork)).setTextColor(mFragment.getResources().getColor(R.color.oneEduGreen));
@@ -117,6 +136,7 @@ public class WifiConnectingController {
 
     private void popFragment(String stage) {
         mWifiService.setOnUpdateConnectionStateListener(null);
+        mTimeoutHandler.removeMessages(1);
         mFragment.getFragmentManager().popBackStack(stage, 0);
     }
 
@@ -189,10 +209,8 @@ public class WifiConnectingController {
                         return;
                     }
                 } catch (MalformedURLException e1) {
-                    // TODO Auto-generated catch block
                     e1.printStackTrace();
                 } catch (IOException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 } finally {
                     if (urlc != null)
