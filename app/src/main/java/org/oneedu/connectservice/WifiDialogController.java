@@ -73,7 +73,6 @@ public class WifiDialogController implements TextWatcher,
     private final WifiConfigUiBase mConfigUi;
     private final View mView;
     private final AccessPoint mAccessPoint;
-    private final CompoundButton mProxySB;
 
     private boolean mEdit;
 
@@ -131,6 +130,7 @@ public class WifiDialogController implements TextWatcher,
     private TextView mDns2View;
 
     //private Spinner mProxySettingsSpinner;
+    private final CompoundButton mProxySB;
     private TextView mProxyHostView;
     private TextView mProxyPortView;
     private TextView mProxyExclusionListView;
@@ -141,9 +141,6 @@ public class WifiDialogController implements TextWatcher,
     private ProxySettings mProxySettings = ProxySettings.UNASSIGNED;
     private LinkProperties mLinkProperties = new LinkProperties();
 
-    // True when this instance is used in SetupWizard XL context.
-    private final boolean mInXlSetupWizard;
-
     private final Handler mTextViewChangedHandler;
 
     private Proxy mProxy;
@@ -151,7 +148,6 @@ public class WifiDialogController implements TextWatcher,
     public WifiDialogController(
             WifiConfigUiBase parent, View view, AccessPoint accessPoint, boolean edit, Proxy proxy) {
         mConfigUi = parent;
-        mInXlSetupWizard = false; //(parent instanceof WifiConfigUiForSetupWizardXL);
 
         mView = view;
         mAccessPoint = accessPoint;
@@ -211,8 +207,6 @@ public class WifiDialogController implements TextWatcher,
             setInitialPos(mProxySB, true);
             //showIpConfigFields();
             showProxyFields();
-            //mView.findViewById(R.id.wifi_advanced_toggle).setVisibility(View.VISIBLE);
-            //mView.findViewById(R.id.wifi_advanced_togglebox).setOnClickListener(this);
 
             mConfigUi.setSubmitButton(context.getString(R.string.wifi_save));
         } else {
@@ -222,23 +216,6 @@ public class WifiDialogController implements TextWatcher,
 
             DetailedState state = mAccessPoint.getState();
             int level = mAccessPoint.getLevel();
-            /*ViewGroup group = (ViewGroup) mView.findViewById(R.id.info);
-            if (state != null) {
-                addRow(group, R.string.wifi_status, Summary.get(mConfigUi.getContext(), state));
-            }
-
-            if (level != -1) {
-                String[] signal = resources.getStringArray(R.array.wifi_signal);
-                addRow(group, R.string.wifi_signal, signal[level]);
-            }
-
-            WifiInfo info = mAccessPoint.getInfo();
-            if (info != null && info.getLinkSpeed() != -1) {
-                addRow(group, R.string.wifi_speed, info.getLinkSpeed() + WifiInfo.LINK_SPEED_UNITS);
-            }
-
-            addRow(group, R.string.wifi_security, mAccessPoint.getSecurityString(false));
-            */
 
             boolean showAdvancedFields = true;
             if (mAccessPoint.networkId != INVALID_NETWORK_ID) {
@@ -476,7 +453,7 @@ public class WifiDialogController implements TextWatcher,
 //                mProxySettingsSpinner.getSelectedItemPosition() == PROXY_STATIC) ?
 //                ProxySettings.STATIC : ProxySettings.NONE;
 
-        mProxySettings = mProxySB.isChecked() ? ProxySettings.STATIC : ProxySettings.NONE;
+        mProxySettings = mProxySB.isChecked() && mProxyHostView.getText().length() > 0 ? ProxySettings.STATIC : ProxySettings.NONE;
 
         if (mProxySettings == ProxySettings.STATIC && mProxyHostView != null) {
             String host = mProxyHostView.getText().toString();
