@@ -25,6 +25,7 @@ public class MainActivity extends BaseActivity {
     private boolean mIsBound;
     private WifiEnabler mWifiEnabler;
     private TextView mWifiStateView;
+    private View mWifiIcon;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +33,7 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.activity_main);
         startService(new Intent("org.oneedu.connection.PROXY"));
         mWifiStateView = (TextView)findViewById(R.id.wifi_state_view);
+        mWifiIcon = findViewById(R.id.wifi_icon);
     }
 
     @Override
@@ -78,11 +80,13 @@ public class MainActivity extends BaseActivity {
                     public void onUpdateWifiState(int state) {
                         switch (state) {
                             case WifiManager.WIFI_STATE_ENABLING:
+                                mWifiIcon.setEnabled(true);
                                 getFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                                 mWifiStateView.setVisibility(View.VISIBLE);
                                 mWifiStateView.setText(R.string.wifi_starting);
                                 break;
                             case WifiManager.WIFI_STATE_ENABLED:
+                                mWifiIcon.setEnabled(true);
                                 mWifiStateView.setVisibility(View.GONE);
                                 if (getFragmentManager().getBackStackEntryCount() == 0) {
                                     getFragmentManager().beginTransaction().addToBackStack("APList")
@@ -91,11 +95,13 @@ public class MainActivity extends BaseActivity {
                                 }
                                 break;
                             case WifiManager.WIFI_STATE_DISABLING:
+                                mWifiIcon.setEnabled(false);
                                 getFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                                 mWifiStateView.setVisibility(View.VISIBLE);
                                 mWifiStateView.setText(R.string.wifi_stopping);
                                 break;
                             case WifiManager.WIFI_STATE_DISABLED:
+                                mWifiIcon.setEnabled(false);
                                 getFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                                 mWifiStateView.setVisibility(View.VISIBLE);
                                 mWifiStateView.setText(R.string.wifi_disabled);

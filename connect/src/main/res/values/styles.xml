@@ -2,7 +2,7 @@
 
     <!-- Base application theme. -->
     <style name="ConnectTheme" parent="UIKit.ToolbarActivity">
-        <!-- Customize your theme here. -->
+        <item name="colorControlActivated">@color/fab_material_white</item>
     </style>
 
     <style name="Button">
