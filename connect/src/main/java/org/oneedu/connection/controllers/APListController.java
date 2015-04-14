@@ -164,7 +164,8 @@ public class APListController implements WifiAdapter.OnItemClickListener, View.O
                 mWifiService.save(con);
                 mContext.getFragmentManager().popBackStack();
             } else {
-                mWifiService.connect(con);
+//                mWifiService.connect(con);
+                mWifiService.updateAndReconnect(con);
                 AccessPoint accessPoint = mSelectedAccessPoint != null ?
                         mSelectedAccessPoint : new AccessPoint(mContext, con);
                 showConnectingDialog(mDialog.mView, accessPoint);

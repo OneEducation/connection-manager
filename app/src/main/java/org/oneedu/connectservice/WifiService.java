@@ -99,8 +99,6 @@ public class WifiService extends Service {
 
         try {
             Settings.Global.putInt(getContentResolver(), Settings.Global.WIFI_SCAN_ALWAYS_AVAILABLE, 0);
-            Settings.Global.putInt(getContentResolver(), Settings.Global.DEVICE_PROVISIONED, 1);
-            Settings.Secure.putInt(getContentResolver(), Settings.Secure.USER_SETUP_COMPLETE, 1);
         } catch (SecurityException e) {
             e.printStackTrace();
         }
@@ -188,15 +186,28 @@ public class WifiService extends Service {
     }
 
     public void updateAndReconnect(final WifiConfiguration config) {
-        mWifiManager.disableNetwork(config.networkId);
-        mWifiManager.updateNetwork(config);
-        mWifiManager.saveConfiguration();
+
         for (WifiConfiguration wifi : mWifiManager.getConfiguredNetworks()) {
-            if (wifi.SSID.equals(config.SSID)) {
-                connect(wifi.networkId);
-                break;
+            if (wifi.SSID.equals(config.SSID) && wifi.status == WifiConfiguration.Status.CURRENT) {
+                // network connected right after dialog open, in that case we don't have networkID but connected.
+                config.networkId = wifi.networkId;
+                mWifiManager.disableNetwork(config.networkId);
+                mWifiManager.updateNetwork(config);
+                mWifiManager.saveConfiguration();
+
+                for (WifiConfiguration updatedWifi : mWifiManager.getConfiguredNetworks()) {
+                    if (updatedWifi.SSID.equals(config.SSID)) {
+                        connect(updatedWifi.networkId);
+                        return;
+                    }
+                }
+
+                Log.d("WifiService", "Shouldn't be here!!!");
             }
         }
+
+        Log.d("WifiService", "Not found " + config.SSID + " so just connect!");
+        connect(config);
     }
 
     private void handleEvent(Context context, Intent intent) {
