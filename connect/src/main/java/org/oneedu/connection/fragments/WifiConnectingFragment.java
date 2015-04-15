@@ -31,6 +31,13 @@ public class WifiConnectingFragment extends Fragment {
         View view = inflater.inflate(R.layout.wifi_connecting, null);
         mView = view.findViewById(R.id.cardView);
         mTitleLayout = (AccessPointTitleLayout)view.findViewById(R.id.main);
+        view.findViewById(R.id.back_btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mController.clearListeners();
+                getFragmentManager().popBackStack();
+            }
+        });
 
         Bundle bundle = getArguments();
         final int thumbnailTop = bundle.getInt(".top");

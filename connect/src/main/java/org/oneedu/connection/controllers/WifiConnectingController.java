@@ -88,8 +88,7 @@ public class WifiConnectingController {
     }
 
     private void accessPointResult(final boolean result) {
-        mWifiService.setOnUpdateConnectionStateListener(null);
-        mTimeoutHandler.removeMessages(1);
+        clearListeners();
 
         if (mFragment == null || !mFragment.isAdded())
             return;
@@ -105,11 +104,12 @@ public class WifiConnectingController {
         } else {
             ((TextView) mView.findViewById(R.id.connectToNetwork)).setTextColor(mFragment.getResources().getColor(R.color.oneEduPink));
             ((ProgressBar) mView.findViewById(R.id.connectToNetworkProgress)).fail();
+            mView.findViewById(R.id.l_buttons).setVisibility(View.VISIBLE);
         }
     }
 
     private void internetTestResult(final boolean result) {
-        Log.d("WifiConnecting", "internetTestResult: "+result);
+        Log.d("WifiConnecting", "internetTestResult: " + result);
         if (mFragment == null || !mFragment.isAdded())
             return;
 
@@ -119,6 +119,7 @@ public class WifiConnectingController {
                 if (!result) {
                     ((TextView) mView.findViewById(R.id.connectToInternet)).setTextColor(mFragment.getResources().getColor(R.color.oneEduPink));
                     ((ProgressBar) mView.findViewById(R.id.connectToInternetProgress)).fail();
+                    mView.findViewById(R.id.l_buttons).setVisibility(View.VISIBLE);
                 } else {
 
                     ((TextView) mView.findViewById(R.id.connectToInternet)).setTextColor(mFragment.getResources().getColor(R.color.oneEduGreen));
@@ -134,9 +135,13 @@ public class WifiConnectingController {
         });
     }
 
-    private void popFragment(String stage) {
+    public void clearListeners() {
         mWifiService.setOnUpdateConnectionStateListener(null);
         mTimeoutHandler.removeMessages(1);
+    }
+
+    private void popFragment(String stage) {
+        clearListeners();
         mFragment.getFragmentManager().popBackStack(stage, 0);
     }
 

@@ -16,19 +16,16 @@
     </style>
     <style name="ButtonPositive" parent="Button">
         <item name="android:text">Connect</item>
-        <!--<item name="android:background">@color/oneEduGreen</item>-->
         <item name="android:background">@drawable/btn_bg_positive</item>
         <item name="android:textColor">@android:color/white</item>
     </style>
     <style name="ButtonNeutral" parent="Button">
         <item name="android:text">Forget</item>
-        <!--<item name="android:background">@color/oneEduPink</item>-->
         <item name="android:background">@drawable/btn_bg_neutral</item>
         <item name="android:textColor">@android:color/white</item>
     </style>
     <style name="ButtonNegative" parent="Button">
         <item name="android:text">Modify</item>
-        <!--<item name="android:background">@android:color/white</item>-->
         <item name="android:background">@drawable/btn_bg_negative</item>
         <item name="android:textColor">@color/oneEduGrey</item>
     </style>
