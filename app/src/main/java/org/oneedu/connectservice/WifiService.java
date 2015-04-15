@@ -1,5 +1,6 @@
 package org.oneedu.connectservice;
 
+import android.app.ActivityManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -93,9 +94,30 @@ public class WifiService extends Service {
         }
     }
 
+    private void checkAnalyticsService() {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if ("org.OneEducation.HarvestClient.HarvestService".equals(service.service.getClassName())) {
+                Log.d(tag, service.service.getClassName() + " is running!");
+                return;
+            }
+        }
+
+        try {
+            Intent i = new Intent();
+            i.setClassName("org.OneEducation.HarvestClient", "org.OneEducation.HarvestClient.HarvestService");
+            startService(i);
+            Log.d(tag, "No analytics service found! Try to launch analytics!");
+        } catch(Exception e) {
+            Log.d(tag, "Analytics is not installed.");
+        }
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
+
+        checkAnalyticsService();
 
         try {
             Settings.Global.putInt(getContentResolver(), Settings.Global.WIFI_SCAN_ALWAYS_AVAILABLE, 0);
