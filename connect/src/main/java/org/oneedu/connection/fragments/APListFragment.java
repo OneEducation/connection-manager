@@ -63,11 +63,26 @@ public class APListFragment extends Fragment {
 
         view.findViewById(R.id.fab_add_network).setOnClickListener(mController);
 
-        ((MainActivity)getActivity()).mWifiService.setOnUpdateAccessPointListener(new WifiService.OnUpdateAccessPointListener() {
+        mApListView.setLayoutAnimationListener(new Animation.AnimationListener() {
             @Override
-            public void onUpdateAPListener(ArrayList<AccessPoint> apns) {
-                Log.d("onUpdateAPListener", ""+apns.size());
-                mWifiAdapter.set(apns);
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                ((MainActivity) getActivity()).mWifiService.setOnUpdateAccessPointListener(new WifiService.OnUpdateAccessPointListener() {
+                    @Override
+                    public void onUpdateAPListener(ArrayList<AccessPoint> apns) {
+                        Log.d("onUpdateAPListener", "" + apns.size());
+                        mWifiAdapter.set(apns);
+                    }
+                });
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
             }
         });
     }
