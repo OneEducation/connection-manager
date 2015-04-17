@@ -9,8 +9,8 @@
         android:layout_marginTop="@dimen/access_point_buttons_margin"
         android:layout_width="match_parent"
         android:layout_height="@dimen/access_point_buttons_height"
-        android:layout_marginStart="50dp"
-        android:layout_marginEnd="50dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginEnd="40dp"
         android:animateLayoutChanges="true"
         android:layout_marginBottom="15dp">
         <LinearLayout
