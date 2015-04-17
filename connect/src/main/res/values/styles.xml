@@ -30,6 +30,13 @@
         <item name="android:textColor">@color/oneEduGrey</item>
     </style>
 
+    <style name="screen_title">
+        <item name="android:layout_width">@dimen/access_point_width</item>
+        <item name="android:layout_height">110dp</item>
+        <item name="android:layout_marginBottom">10dp</item>
+        <item name="android:layout_centerHorizontal">true</item>
+        <item name="android:gravity">bottom</item>
+    </style>
 
     <style name="wifi_item">
         <item name="android:layout_width">match_parent</item>

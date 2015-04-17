@@ -41,4 +41,5 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile project(':app')
     compile project(':uikit')
+    compile 'pl.tajchert:waitingdots:0.1.0'
 }

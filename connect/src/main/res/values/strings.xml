@@ -701,4 +701,8 @@
     <string name="proxy_password">Proxy Password</string>
     <string name="proxy_username">Proxy Username</string>
     <string name="wifi_disabled">Wifi is switched off.</string>
+
+    <string name="select_network">Select Network</string>
+    <string name="enter_details">Enter Details</string>
+
 </resources>

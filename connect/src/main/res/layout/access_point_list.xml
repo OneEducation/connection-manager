@@ -4,11 +4,20 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+    <TextView
+        style="@style/screen_title"
+        android:id="@+id/screen_title"
+        android:text="@string/select_network"
+        android:textColor="@android:color/white"
+        android:textSize="40sp"
+        android:textStyle="bold"/>
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/ap_list"
         android:layout_width="@dimen/access_point_width"
         android:layout_height="match_parent"
         android:layout_centerHorizontal="true"
+        android:layout_below="@id/screen_title"
         android:layoutAnimation="@anim/list_cell_animation"/>
 
     <org.oneedu.uikit.views.RippleBackground
