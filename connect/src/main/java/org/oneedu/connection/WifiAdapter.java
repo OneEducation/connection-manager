@@ -166,6 +166,9 @@ public class WifiAdapter extends RecyclerView.Adapter<WifiAdapter.AccessPointVie
                 if (ap.proxy == null || ap.proxy.getStatus() == 1) {
                     m_l_title.setInternet(true);
                 }
+            } else {
+                m_l_title.setConnected(false);
+                m_l_title.setInternet(false);
             }
             setTitle(ap.getTitle());
             setSummary(ap.getSummary() == null ? "" : ap.getSummary());
