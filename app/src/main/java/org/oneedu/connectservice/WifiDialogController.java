@@ -154,7 +154,7 @@ public class WifiDialogController implements TextWatcher,
         mAccessPointSecurity = (accessPoint == null) ? AccessPoint.SECURITY_NONE :
                 accessPoint.security;
         mEdit = edit;
-        mProxy = accessPoint.proxy;
+        mProxy = accessPoint == null ? null : accessPoint.proxy;
 
         mTextViewChangedHandler = new Handler();
         final Context context = mConfigUi.getContext();
