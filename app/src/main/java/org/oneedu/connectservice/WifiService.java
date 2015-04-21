@@ -61,7 +61,7 @@ public class WifiService extends Service {
     }
 
     public interface OnUpdateAccessPointListener {
-        abstract void onUpdateAPListener(ArrayList<AccessPoint> apns);
+        void onUpdateAPListener(ArrayList<AccessPoint> apns);
     }
 
     public void setOnUpdateAccessPointListener(OnUpdateAccessPointListener onUpdateAccessPointListener) {
@@ -72,7 +72,7 @@ public class WifiService extends Service {
     }
 
     public interface onUpdateConnectionStateListener {
-        abstract void onUpdateConnectionStateChanged(WifiInfo wifiInfo, NetworkInfo.DetailedState state, int supplicantError);
+        void onUpdateConnectionStateChanged(WifiInfo wifiInfo, NetworkInfo.DetailedState state, int supplicantError);
     }
 
     public void setOnUpdateConnectionStateListener(onUpdateConnectionStateListener onUpdateConnectionStateListener) {

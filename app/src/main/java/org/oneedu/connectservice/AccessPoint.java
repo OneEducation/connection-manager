@@ -74,6 +74,7 @@ public class AccessPoint implements Comparable {
     private DetailedState mState;
 
     public boolean selected = false;
+    public Proxy proxy;
 
     static int getSecurity(WifiConfiguration config) {
         if (config.allowedKeyManagement.get(KeyMgmt.WPA_PSK)) {
@@ -188,6 +189,9 @@ public class AccessPoint implements Comparable {
         networkId = config.networkId;
         mRssi = Integer.MAX_VALUE;
         mConfig = config;
+
+        ProxyDB proxyDB = ProxyDB.getInstance(mContext);
+        proxy = proxyDB.getProxy(config.SSID);
     }
 
     private void loadResult(ScanResult result) {
@@ -200,6 +204,9 @@ public class AccessPoint implements Comparable {
         networkId = -1;
         mRssi = result.level;
         mScanResult = result;
+
+        ProxyDB proxyDB = ProxyDB.getInstance(mContext);
+        proxy = proxyDB.getProxy(AccessPoint.convertToQuotedString(ssid));
     }
 
 //    @Override
@@ -365,7 +372,20 @@ public class AccessPoint implements Comparable {
         } else if (mRssi == Integer.MAX_VALUE) { // Wifi out of range
             setSummary(context.getString(R.string.wifi_not_in_range));
         } else if (mState != null) { // This is the active connection
-            setSummary(Summary.get(context, mState));
+            // Check proxy and latest connect internet status
+            if (mState == DetailedState.CONNECTED && proxy != null) {
+                switch(proxy.getStatus()) {
+                    case 1:
+                        setSummary(Summary.get(context, mState));
+                        break;
+
+                    case 0:
+                        setSummary("Failed to connect internet. Check proxy details.");
+                        break;
+                }
+            } else {
+                setSummary(Summary.get(context, mState));
+            }
         } else { // In range, not disabled.
             StringBuilder summary = new StringBuilder();
             if (mConfig != null) { // Is saved network

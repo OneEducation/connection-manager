@@ -11,7 +11,9 @@ import org.oneedu.connection.R;
  */
 public class AccessPointTitleLayout extends RelativeLayout {
     private boolean connected;
+    private boolean internet;
     private static final int[] CONNECTED_STATE = new int[] { R.attr.state_connected };
+    private static final int[] INTERNET_STATE = new int[] { R.attr.state_internet };
 
     public AccessPointTitleLayout(Context context) {
         super(context);
@@ -31,15 +33,24 @@ public class AccessPointTitleLayout extends RelativeLayout {
 
     @Override
     protected int[] onCreateDrawableState(int extraSpace) {
-        int[] state = super.onCreateDrawableState(extraSpace + 1);
+        int[] state = super.onCreateDrawableState(extraSpace + 2);
         if (connected) {
             mergeDrawableStates(state, CONNECTED_STATE);
+        }
+
+        if (internet) {
+            mergeDrawableStates(state, INTERNET_STATE);
         }
         return state;
     }
 
     public void setConnected(boolean connected) {
         this.connected = connected;
+        refreshDrawableState();
+    }
+
+    public void setInternet(boolean connected) {
+        this.internet = connected;
         refreshDrawableState();
     }
 }

@@ -160,9 +160,15 @@ public class WifiAdapter extends RecyclerView.Adapter<WifiAdapter.AccessPointVie
         }
 
         private void set(AccessPoint ap, int pos) {
-            m_l_title.setConnected(ap.getState() != null && ap.getState().ordinal() == 5);
-            setTitle(ap.getTitle().toString());
-            setSummary(ap.getSummary() == null ? "" : ap.getSummary().toString());
+            if (ap.getState() != null && ap.getState() == NetworkInfo.DetailedState.CONNECTED) {
+                m_l_title.setConnected(true);
+
+                if (ap.proxy == null || ap.proxy.getStatus() == 1) {
+                    m_l_title.setInternet(true);
+                }
+            }
+            setTitle(ap.getTitle());
+            setSummary(ap.getSummary() == null ? "" : ap.getSummary());
             setSignal(ap);
             setButtons(ap);
 

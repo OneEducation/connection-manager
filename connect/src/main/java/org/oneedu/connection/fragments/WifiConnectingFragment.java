@@ -83,7 +83,7 @@ public class WifiConnectingFragment extends Fragment {
     }
 
     public void setTitle(AccessPoint ap) {
-        mTitleLayout.setConnected(ap.getState() != null && ap.getState().ordinal() == 5);
+        //mTitleLayout.setConnected(ap.getState() != null && ap.getState().ordinal() == 5);
         ((TextView)mView.findViewById(R.id.title)).setText(ap.ssid);
         ((TextView)mView.findViewById(R.id.summary)).setText(ap.getSummary());
         ImageView mSignal = (ImageView)mView.findViewById(R.id.signal);

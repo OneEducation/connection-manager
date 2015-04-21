@@ -14,9 +14,10 @@ public class ProxyDBHelper extends SQLiteOpenHelper {
     public static final String COLUMN_PASSWORD = "password";
     public static final String COLUMN_HOST = "host";
     public static final String COLUMN_PORT = "port";
+    public static final String COLUMN_STATUS = "status";
 
     private static final String DATABASE_NAME = "proxies.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     // Database creation sql statement
     private static final String DATABASE_CREATE = "create table "
@@ -26,6 +27,7 @@ public class ProxyDBHelper extends SQLiteOpenHelper {
             + COLUMN_HOST + " text not null, "
             + COLUMN_PASSWORD + " text not null, "
             + COLUMN_PORT + " integer"
+            + COLUMN_STATUS + " integer"
             +");";
 
     public ProxyDBHelper(Context context) {
@@ -38,7 +40,9 @@ public class ProxyDBHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i2) {
-
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        if (newVersion == 2) {
+            db.execSQL("ALTER TABLE "+TABLE_PROXIES+" ADD COLUMN "+COLUMN_STATUS+" INTEGER");
+        }
     }
 }

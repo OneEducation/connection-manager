@@ -101,13 +101,8 @@ public class APListController implements WifiAdapter.OnItemClickListener, View.O
     }
 
     private void showDialog(View v, boolean edit) {
-        org.oneedu.connectservice.Proxy proxy = null;
-        if(mSelectedAccessPoint != null) {
-            proxy = mProxyService.getProxy(AccessPoint.convertToQuotedString(mSelectedAccessPoint.ssid));
-        }
-
         mDialog = new WifiDialogFragment();
-        mDialog.setArgs(this, mSelectedAccessPoint, edit, proxy);
+        mDialog.setArgs(this, mSelectedAccessPoint, edit);
 
         int[] screenLocation = new int[2];
         v.getLocationOnScreen(screenLocation);
@@ -254,7 +249,7 @@ public class APListController implements WifiAdapter.OnItemClickListener, View.O
             @Override
             public void run() {
                 mDialog = new WifiDialogFragment();
-                mDialog.setArgs(APListController.this, null, false, null);
+                mDialog.setArgs(APListController.this, null, false);
 
                 //mRevealColorView.animate().alpha(0.0f).setDuration(300).start();
                 //mRevealColorView.hide(mRevealColorView.getWidth() / 2, 0, mFragment.getResources().getColor(android.R.color.transparent), 0, 300, null);

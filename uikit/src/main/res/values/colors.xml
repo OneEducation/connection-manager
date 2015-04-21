@@ -19,5 +19,10 @@
     <color name="oneEduBlue2">#A5C6EA</color>
     <color name="oneEduBlue3">#D3E2F5</color>
 
+    <color name="oneEduOrange">#F18F00</color>
+    <color name="oneEduOrange1">#F6AC4D</color>
+    <color name="oneEduOrange2">#FACD8D</color>
+    <color name="oneEduOrange3">#FDE4C7</color>
+
     <color name="rippelColor">#0099CC</color>
 </resources>

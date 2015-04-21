@@ -11,7 +11,9 @@ import android.widget.TextView;
 
 import org.oneedu.connection.R;
 import org.oneedu.connection.fragments.WifiConnectingFragment;
+import org.oneedu.connection.views.AccessPointTitleLayout;
 import org.oneedu.connectservice.AccessPoint;
+import org.oneedu.connectservice.ProxyDB;
 import org.oneedu.connectservice.WifiService;
 import org.oneedu.uikit.widgets.ProgressBar;
 
@@ -33,6 +35,7 @@ public class WifiConnectingController {
     private Handler mHandler;
     private WifiInfo mLastInfo;
     private Handler mTimeoutHandler;
+    private AccessPointTitleLayout m_l_title;
 
     public WifiConnectingController(WifiConnectingFragment fragment, AccessPoint ap, WifiService service) {
         mFragment = fragment;
@@ -57,6 +60,8 @@ public class WifiConnectingController {
                 if (mView == null) {
                     mView = mFragment.getView();
                 }
+
+                m_l_title = (AccessPointTitleLayout) mView.findViewById(R.id.main);
 
                 if (mLastInfo != null && AccessPoint.convertToQuotedString(mAP.ssid).equals(mLastInfo.getSSID())) {
                     if (supplicantError == WifiManager.ERROR_AUTHENTICATING) {
@@ -98,6 +103,7 @@ public class WifiConnectingController {
         }
 
         if (result) {
+            m_l_title.setConnected(true);
             ((TextView)mView.findViewById(R.id.connectToNetwork)).setTextColor(mFragment.getResources().getColor(R.color.oneEduGreen));
             ((ProgressBar)mView.findViewById(R.id.connectToNetworkProgress)).done();
             internetTest();
@@ -117,11 +123,13 @@ public class WifiConnectingController {
             @Override
             public void run() {
                 if (!result) {
+                    ProxyDB.getInstance(mFragment.getActivity()).updateInternetConnectStatus(AccessPoint.convertToQuotedString(mAP.ssid), 0);
                     ((TextView) mView.findViewById(R.id.connectToInternet)).setTextColor(mFragment.getResources().getColor(R.color.oneEduPink));
                     ((ProgressBar) mView.findViewById(R.id.connectToInternetProgress)).fail();
                     mView.findViewById(R.id.l_buttons).setVisibility(View.VISIBLE);
                 } else {
-
+                    ProxyDB.getInstance(mFragment.getActivity()).updateInternetConnectStatus(AccessPoint.convertToQuotedString(mAP.ssid), 1);
+                    m_l_title.setInternet(true);
                     ((TextView) mView.findViewById(R.id.connectToInternet)).setTextColor(mFragment.getResources().getColor(R.color.oneEduGreen));
                     ((ProgressBar) mView.findViewById(R.id.connectToInternetProgress)).done();
                     mView.postDelayed(new Runnable() {

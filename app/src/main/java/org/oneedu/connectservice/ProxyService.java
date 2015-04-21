@@ -48,12 +48,7 @@ public class ProxyService extends Service {
         mWifiManager = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
         mConnectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        proxyDB = new ProxyDB(mContext);
-        try {
-            proxyDB.open();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        proxyDB = ProxyDB.getInstance(mContext);
 
         Preferences.init(mContext);
         PreferenceManager.getDefaultSharedPreferences(mContext).edit().putBoolean(PreferenceUtils.chainProxyEnabled, true).commit();
@@ -155,14 +150,6 @@ public class ProxyService extends Service {
         }
 
         return config;
-    }
-
-    public org.oneedu.connectservice.Proxy getProxy(String ssid) {
-        if (ssid == null) {
-            return null;
-        }
-
-        return proxyDB.getProxy(ssid);
     }
 
     public void toggleProxy(String ssid) {

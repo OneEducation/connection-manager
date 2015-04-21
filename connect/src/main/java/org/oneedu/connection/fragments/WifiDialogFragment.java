@@ -28,7 +28,6 @@ public class WifiDialogFragment extends Fragment implements WifiConfigUiBase {
     private boolean mEdit;
     private View.OnClickListener mListener;
     private AccessPoint mAccessPoint;
-    private Proxy mProxy;
 
     public View mView;
     private WifiDialogController mController;
@@ -57,7 +56,7 @@ public class WifiDialogFragment extends Fragment implements WifiConfigUiBase {
             l_title.setConnected(mAccessPoint.getState() != null && mAccessPoint.getState().ordinal() == 5);
         }
 
-        mController = new WifiDialogController(this, mView.findViewById(R.id.scrollView), mAccessPoint, mEdit, mProxy);
+        mController = new WifiDialogController(this, mView.findViewById(R.id.scrollView), mAccessPoint, mEdit);
         /* During creation, the submit button can be unavailable to determine
          * visibility. Right after creation, update button visibility */
         mController.enableSubmitIfAppropriate();
@@ -120,11 +119,10 @@ public class WifiDialogFragment extends Fragment implements WifiConfigUiBase {
     }
 
     public void setArgs(View.OnClickListener listener,
-                              AccessPoint accessPoint, boolean edit, Proxy proxy) {
+                              AccessPoint accessPoint, boolean edit) {
         mEdit = edit;
         mListener = listener;
         mAccessPoint = accessPoint;
-        mProxy = proxy;
     }
 
     @Override

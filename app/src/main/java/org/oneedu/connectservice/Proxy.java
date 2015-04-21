@@ -11,6 +11,7 @@ public class Proxy {
     private int port;
     private String username;
     private String password;
+    private int status;
 
     public Proxy(String ssid, String host, int port, String username, String password) {
         this.ssid = ssid;
@@ -18,6 +19,7 @@ public class Proxy {
         this.port = port;
         this.username = username;
         this.password = password;
+        this.status = 0;
     }
 
     public Proxy(Cursor cursor) {
@@ -26,6 +28,7 @@ public class Proxy {
         this.port = cursor.getInt(2);
         this.username = cursor.getString(3);
         this.password = cursor.getString(4);
+        this.status = cursor.getInt(5);
     }
 
     public String getSsid() {
@@ -46,6 +49,10 @@ public class Proxy {
 
     public String getUsername() {
         return username;
+    }
+
+    public int getStatus() {
+        return status;
     }
 
     public String toString() {

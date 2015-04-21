@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res/org.oneedu.connection">
-    <item app:state_connected="true" android:color="@color/oneEduGreen"/>
+    <item app:state_connected="true" app:state_internet="false" android:color="@color/oneEduOrange"/>
+    <item app:state_connected="true" app:state_internet="true" android:color="@color/oneEduGreen"/>
     <item android:color="@color/oneEduGrey"/>
 </selector>
