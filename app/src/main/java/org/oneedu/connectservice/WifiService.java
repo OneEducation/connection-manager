@@ -428,8 +428,8 @@ public class WifiService extends Service {
         }
     }
 
-    public void setWifiStatusListener() {
-
+    public void scanWifi() {
+        mScanner.resume();
     }
 
     private class Scanner extends Handler {

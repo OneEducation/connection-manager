@@ -115,16 +115,19 @@ public class WifiConnectingController {
     private void internetTestResult(final boolean result) {
         Log.d("WifiConnecting", "internetTestResult: " + result);
 
+        ProxyDB.getInstance(mFragment.getActivity()).updateInternetConnectStatus(AccessPoint.convertToQuotedString(mAP.ssid), result ? 1 : 0);
+
+        // Testing internet connection do not affect to wifi configuration, so need to trigger scan wifi to update on list
+        mWifiService.scanWifi();
+
         mFragment.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 if (!result) {
-                    ProxyDB.getInstance(mFragment.getActivity()).updateInternetConnectStatus(AccessPoint.convertToQuotedString(mAP.ssid), 0);
                     ((TextView) mView.findViewById(R.id.connectToInternet)).setTextColor(mFragment.getResources().getColor(R.color.oneEduPink));
                     ((ProgressBar) mView.findViewById(R.id.connectToInternetProgress)).fail();
                     mView.findViewById(R.id.l_buttons).setVisibility(View.VISIBLE);
                 } else {
-                    ProxyDB.getInstance(mFragment.getActivity()).updateInternetConnectStatus(AccessPoint.convertToQuotedString(mAP.ssid), 1);
                     m_l_title.setInternet(true);
                     ((TextView) mView.findViewById(R.id.connectToInternet)).setTextColor(mFragment.getResources().getColor(R.color.oneEduGreen));
                     ((ProgressBar) mView.findViewById(R.id.connectToInternetProgress)).done();
