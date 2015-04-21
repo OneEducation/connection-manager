@@ -96,7 +96,7 @@ public class WifiAdapter extends RecyclerView.Adapter<WifiAdapter.AccessPointVie
             button2.setTag(R.id.parent_card, mView);
             button3.setTag(R.id.parent_card, mView);
 
-            v.setOnClickListener(new View.OnClickListener() {
+            mView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     final int currentPos = getPosition();
