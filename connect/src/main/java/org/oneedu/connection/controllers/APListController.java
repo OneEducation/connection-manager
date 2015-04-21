@@ -51,8 +51,7 @@ public class APListController implements WifiAdapter.OnItemClickListener, View.O
         if (mSelectedAccessPoint.getConfig() == null) {         // not saved network
             if (mSelectedAccessPoint.security == AccessPoint.SECURITY_NONE) {
                 /** Bypass dialog for unsecured networks */
-                mSelectedAccessPoint.generateOpenNetworkConfig();
-                mWifiService.connect(mSelectedAccessPoint.getConfig());
+                showConnectingDialog(view, mSelectedAccessPoint, null);
             } else {
                 showDialog(view, false);
             }
@@ -66,23 +65,13 @@ public class APListController implements WifiAdapter.OnItemClickListener, View.O
         final View parent = (View) view.getTag(R.id.parent_card);
         final int which = view.getId(); //(Integer)view.getTag();
 
+        // wait for hiding animation done
         view.postDelayed(new Runnable() {
             @Override
             public void run() {
                 switch(which) {
                     case R.id.button3: //MENU_ID_CONNECT:
-                        if (mSelectedAccessPoint.networkId != -1) {     //saved network
-                            mWifiService.connect(mSelectedAccessPoint.networkId);
-                            showConnectingDialog(parent, mSelectedAccessPoint);
-                        } else if (mSelectedAccessPoint.security == AccessPoint.SECURITY_NONE) {
-                            /** Bypass dialog for unsecured networks */
-                            mSelectedAccessPoint.generateOpenNetworkConfig();
-                            mWifiService.connect(mSelectedAccessPoint.getConfig());
-                            showConnectingDialog(parent, mSelectedAccessPoint);
-
-                        } else {
-                            showDialog(parent, false);
-                        }
+                        showConnectingDialog(parent, mSelectedAccessPoint, null);
                         break;
 
                     case R.id.button2: //MENU_ID_FORGET:
@@ -144,8 +133,7 @@ public class APListController implements WifiAdapter.OnItemClickListener, View.O
                 final NetworkInfo.DetailedState state = mSelectedAccessPoint.getState();
                 if (state != null && state.ordinal() == 5) {
                     // modifying connected network : update -> disable -> reconnect
-                    mWifiService.updateAndReconnect(con);
-                    showConnectingDialog(mDialog.mView, mSelectedAccessPoint);
+                    showConnectingDialog(mDialog.mView, mSelectedAccessPoint, con);
                 } else {
                     // just save
                     mWifiService.save(con);
@@ -159,22 +147,25 @@ public class APListController implements WifiAdapter.OnItemClickListener, View.O
                 mWifiService.save(con);
                 mContext.getFragmentManager().popBackStack();
             } else {
-//                mWifiService.connect(con);
-                mWifiService.updateAndReconnect(con);
                 AccessPoint accessPoint = mSelectedAccessPoint != null ?
                         mSelectedAccessPoint : new AccessPoint(mContext, con);
-                showConnectingDialog(mDialog.mView, accessPoint);
+                showConnectingDialog(mDialog.mView, accessPoint, con);
             }
         }
     }
 
-    private void showConnectingDialog(View v, AccessPoint accessPoint) {
+    private void showConnectingDialog(View v, AccessPoint accessPoint, WifiConfiguration config) {
 
         int[] screenLocation = new int[2];
         v.getLocationOnScreen(screenLocation);
         int orientation = mContext.getResources().getConfiguration().orientation;
 
         Bundle extras = new Bundle();
+        accessPoint.saveWifiState(extras);
+        if (config != null) {
+            extras.putParcelable(".wificonfig", config);
+        }
+
         extras.putInt(".orientation", orientation);
         extras.putInt(".left", screenLocation[0]);
         extras.putInt(".top", screenLocation[1]);
@@ -184,7 +175,6 @@ public class APListController implements WifiAdapter.OnItemClickListener, View.O
 
         WifiConnectingFragment fragment = new WifiConnectingFragment();
         fragment.setArguments(extras);
-        fragment.setController(new WifiConnectingController(fragment, accessPoint, mWifiService));
 
         mContext.getFragmentManager().beginTransaction()
                 .addToBackStack("Connecting")

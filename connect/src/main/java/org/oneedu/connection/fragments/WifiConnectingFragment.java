@@ -1,6 +1,7 @@
 package org.oneedu.connection.fragments;
 
 import android.app.Fragment;
+import android.net.wifi.WifiConfiguration;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -10,9 +11,9 @@ import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.oneedu.connection.MainActivity;
 import org.oneedu.connection.R;
 import org.oneedu.connection.controllers.WifiConnectingController;
-import org.oneedu.connection.views.AccessPointTitleLayout;
 import org.oneedu.connectservice.AccessPoint;
 
 /**
@@ -23,14 +24,12 @@ public class WifiConnectingFragment extends Fragment {
     private WifiConnectingController mController;
     private int mLeftDelta;
     private int mTopDelta;
-    private AccessPointTitleLayout mTitleLayout;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.wifi_connecting, null);
         mView = view.findViewById(R.id.cardView);
-        mTitleLayout = (AccessPointTitleLayout)view.findViewById(R.id.main);
         view.findViewById(R.id.back_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -62,11 +61,11 @@ public class WifiConnectingFragment extends Fragment {
             });
         }
 
-        return view;
-    }
+        AccessPoint ap = new AccessPoint(getActivity(), bundle);
+        WifiConfiguration config = bundle.getParcelable(".wificonfig");
+        mController = new WifiConnectingController(this, view, ap, config, ((MainActivity)getActivity()).mWifiService);
 
-    public void setController(WifiConnectingController controller) {
-        mController = controller;
+        return view;
     }
 
     public void runEnterAnimation() {
@@ -83,7 +82,6 @@ public class WifiConnectingFragment extends Fragment {
     }
 
     public void setTitle(AccessPoint ap) {
-        //mTitleLayout.setConnected(ap.getState() != null && ap.getState().ordinal() == 5);
         ((TextView)mView.findViewById(R.id.title)).setText(ap.ssid);
         ((TextView)mView.findViewById(R.id.summary)).setText(ap.getSummary());
         ImageView mSignal = (ImageView)mView.findViewById(R.id.signal);

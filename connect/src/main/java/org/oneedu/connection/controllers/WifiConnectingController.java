@@ -1,6 +1,7 @@
 package org.oneedu.connection.controllers;
 
 import android.net.NetworkInfo;
+import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
@@ -37,31 +38,23 @@ public class WifiConnectingController {
     private Handler mTimeoutHandler;
     private AccessPointTitleLayout m_l_title;
 
-    public WifiConnectingController(WifiConnectingFragment fragment, AccessPoint ap, WifiService service) {
+    public WifiConnectingController(WifiConnectingFragment fragment, View rootView, AccessPoint ap, WifiConfiguration config, WifiService service) {
         mFragment = fragment;
-        mView = fragment.getView();
+        mView = rootView;
         mAP = ap;
         mWifiService = service;
+        m_l_title = (AccessPointTitleLayout) mView.findViewById(R.id.main);
 
         mWifiService.setOnUpdateConnectionStateListener(new WifiService.onUpdateConnectionStateListener() {
             @Override
             public void onUpdateConnectionStateChanged(WifiInfo wifiInfo, NetworkInfo.DetailedState state, int supplicantError) {
                 Log.d("ConnectionStateChanged", wifiInfo.getSSID() + " : " + state.name() + " / supplicantError: " + supplicantError);
 
-                if (mFragment == null || !mFragment.isAdded()) {
-                    return;
-                }
-
                 // When getting authenticate error event from supplicant_state_change_action, there is no info about which network.
                 // So keep the last wifi info and use it if there is no active wifi info.
                 if (!"0x".equals(wifiInfo.getSSID())) {
                     mLastInfo = wifiInfo;
                 }
-                if (mView == null) {
-                    mView = mFragment.getView();
-                }
-
-                m_l_title = (AccessPointTitleLayout) mView.findViewById(R.id.main);
 
                 if (mLastInfo != null && AccessPoint.convertToQuotedString(mAP.ssid).equals(mLastInfo.getSSID())) {
                     if (supplicantError == WifiManager.ERROR_AUTHENTICATING) {
@@ -90,17 +83,22 @@ public class WifiConnectingController {
             }
         };
         mTimeoutHandler.sendEmptyMessageDelayed(1, 30000);
+
+        if (config == null) {
+            if (mAP.networkId != -1) {     //saved network
+                mWifiService.connect(mAP.networkId);
+            } else if (mAP.security == AccessPoint.SECURITY_NONE) {
+                /** Bypass dialog for unsecured networks */
+                mAP.generateOpenNetworkConfig();
+                mWifiService.connect(mAP.getConfig());
+            }
+        } else {
+            mWifiService.updateAndReconnect(config);
+        }
     }
 
     private void accessPointResult(final boolean result) {
         clearListeners();
-
-        if (mFragment == null || !mFragment.isAdded())
-            return;
-
-        if (mView == null) {
-            mView = mFragment.getView();
-        }
 
         if (result) {
             m_l_title.setConnected(true);
@@ -116,8 +114,6 @@ public class WifiConnectingController {
 
     private void internetTestResult(final boolean result) {
         Log.d("WifiConnecting", "internetTestResult: " + result);
-        if (mFragment == null || !mFragment.isAdded())
-            return;
 
         mFragment.getActivity().runOnUiThread(new Runnable() {
             @Override
