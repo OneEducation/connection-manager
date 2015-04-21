@@ -161,10 +161,18 @@ public class AccessPoint implements Comparable {
         mConfig = savedState.getParcelable(KEY_CONFIG);
         if (mConfig != null) {
             loadConfig(mConfig);
+            refresh();
         }
         mScanResult = (ScanResult) savedState.getParcelable(KEY_SCANRESULT);
         if (mScanResult != null) {
-            loadResult(mScanResult);
+            // if config and scanresult both exist, that ap is loaded by config and updated by scanresult.
+            // ( some values are only available from scanresult )
+            if (mConfig == null) {
+                loadResult(mScanResult);
+                refresh();
+            } else {
+                update(mScanResult);
+            }
         }
         mInfo = (WifiInfo) savedState.getParcelable(KEY_WIFIINFO);
         if (savedState.containsKey(KEY_DETAILEDSTATE)) {
@@ -278,6 +286,7 @@ public class AccessPoint implements Comparable {
             if (security == SECURITY_PSK) {
                 pskType = getPskType(result);
             }
+            mScanResult = result;
             refresh();
             return true;
         }
