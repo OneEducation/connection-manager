@@ -699,4 +699,6 @@
     <string name="dlg_ok">OK</string>
 
     <string name="install_google_service">Install google service</string>
+
+    <string name="check_proxy">Check proxy details</string>
 </resources>

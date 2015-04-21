@@ -389,7 +389,7 @@ public class AccessPoint implements Comparable {
                         break;
 
                     case 0:
-                        setSummary("Failed to connect internet. Check proxy details.");
+                        setSummary(context.getString(R.string.check_proxy));
                         break;
                 }
             } else {
