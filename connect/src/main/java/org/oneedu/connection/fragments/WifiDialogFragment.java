@@ -51,10 +51,10 @@ public class WifiDialogFragment extends Fragment implements WifiConfigUiBase {
         mNegative = (Button)mView.findViewById(R.id.negative);
         mSignal = (ImageView)mView.findViewById(R.id.signal);
 
-        if (mAccessPoint != null) {
-            AccessPointTitleLayout l_title = (AccessPointTitleLayout) mView.findViewById(R.id.main);
-            l_title.setConnected(mAccessPoint.getState() != null && mAccessPoint.getState().ordinal() == 5);
-        }
+//        if (mAccessPoint != null) {
+//            AccessPointTitleLayout l_title = (AccessPointTitleLayout) mView.findViewById(R.id.main);
+//            l_title.setConnected(mAccessPoint.getState() != null && mAccessPoint.getState().ordinal() == 5);
+//        }
 
         mController = new WifiDialogController(this, mView.findViewById(R.id.scrollView), mAccessPoint, mEdit);
         /* During creation, the submit button can be unavailable to determine
@@ -173,16 +173,6 @@ public class WifiDialogFragment extends Fragment implements WifiConfigUiBase {
         } else {
             mSignal.setImageLevel(ap.getLevel());
             mSignal.setImageResource(R.drawable.wifi_signal);
-            int[] state = new int[2];
-            if (ap.getState() != null && ap.getState().ordinal() == 5) {
-
-                state[0] = R.attr.state_connected;
-
-                if(ap.security != AccessPoint.SECURITY_NONE) {
-                    state[1] = R.attr.state_encrypted;
-                }
-            }
-            mSignal.setImageState(state, true);
         }
     }
 
