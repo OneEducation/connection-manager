@@ -78,7 +78,7 @@ public class WifiAdapter extends RecyclerView.Adapter<WifiAdapter.AccessPointVie
         // each data item is just a string in this case
         public AccessPointViewHolder(View v) {
             super(v);
-            mView = v;
+            mView = v.findViewById(R.id.cardView);
             mTitle =  (TextView) v.findViewById(R.id.title);
             mSummary = (TextView)  v.findViewById(R.id.summary);
             mSignal = (ImageView)  v.findViewById(R.id.signal);
@@ -92,9 +92,9 @@ public class WifiAdapter extends RecyclerView.Adapter<WifiAdapter.AccessPointVie
             button2 = v.findViewById(R.id.button2);
             button3 = v.findViewById(R.id.button3);
             spacer = v.findViewById(R.id.spacer);
-            button1.setTag(R.id.parent_card, v);
-            button2.setTag(R.id.parent_card, v);
-            button3.setTag(R.id.parent_card, v);
+            button1.setTag(R.id.parent_card, mView);
+            button2.setTag(R.id.parent_card, mView);
+            button3.setTag(R.id.parent_card, mView);
 
             v.setOnClickListener(new View.OnClickListener() {
                 @Override
