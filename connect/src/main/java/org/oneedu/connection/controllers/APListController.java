@@ -5,10 +5,7 @@ import android.graphics.Point;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiConfiguration;
 import android.os.Bundle;
-import android.view.Menu;
 import android.view.View;
-
-import org.oneedu.uikit.views.RippleBackground;
 
 import org.oneedu.connection.R;
 import org.oneedu.connection.WifiAdapter;
@@ -16,6 +13,8 @@ import org.oneedu.connection.fragments.APListFragment;
 import org.oneedu.connection.fragments.WifiConnectingFragment;
 import org.oneedu.connection.fragments.WifiDialogFragment;
 import org.oneedu.connectservice.*;
+
+import at.markushi.ui.RevealColorView;
 
 /**
  * Created by dongseok0 on 26/03/15.
@@ -29,13 +28,18 @@ public class APListController implements WifiAdapter.OnItemClickListener, View.O
     private ProxyService mProxyService;
 
     private WifiDialogFragment mDialog;
-    private RippleBackground mRevealColorView;
+    private RevealColorView mRevealColorView;
+    private View mRevealPHView;
+    private View mRootView;
 
-    public APListController(APListFragment fragment, WifiService service, ProxyService proxy) {
+    public APListController(APListFragment fragment, View rootView, WifiService service, ProxyService proxy) {
         mFragment = fragment;
         mContext = fragment.getActivity();
         mWifiService = service;
         mProxyService = proxy;
+        mRootView = rootView;
+        mRevealColorView = (RevealColorView) mRootView.findViewById(R.id.reveal);
+        mRevealPHView = mRootView.findViewById(R.id.reveal_ph);
     }
 
     @Override
@@ -210,23 +214,30 @@ public class APListController implements WifiAdapter.OnItemClickListener, View.O
     }
 
     private void swingBtn(final View v, final Runnable runnable) {
+        int[] targetLoc = new int[2];
+        int[] srcLoc = new int[2];
+        mRevealColorView.getLocationOnScreen(targetLoc);
+        v.getLocationOnScreen(srcLoc);
+
+        int diffY = targetLoc[1] - srcLoc[1] + mRevealColorView.getHeight() / 2;
+
         View container = (View)v.getParent();
-        mFragment.getView().findViewById(R.id.ap_list).animate().translationY(300).alpha(0.0f).setDuration(1000).start();
-        container.animate().translationY(-500).rotation(180).setDuration(500).setStartDelay(200)
+        mRootView.findViewById(R.id.ap_list).animate().translationY(300).alpha(0.0f).setDuration(1000);
+        mRootView.findViewById(R.id.screen_title).animate().translationY(300).alpha(0).setDuration(1000);
+
+        container.animate().translationY(diffY).rotation(180).setDuration(500)//.setStartDelay(200)
                 .withEndAction(new Runnable() {
                     @Override
                     public void run() {
-                        v.animate().alpha(0.0f).setDuration(0).start();
+                        v.setAlpha(0);
 
-                        mRevealColorView = (RippleBackground) mFragment.getView().findViewById(R.id.reveal);
-                        mRevealColorView.startRippleAnimation();
+                        Point p = getLocationInView(mRevealColorView, v);
+                        int pink = mFragment.getResources().getColor(R.color.oneEduPink);
 
-                        mRevealColorView.postDelayed(runnable, 1000);
-                        //Point p = getLocationInView(mRevealColorView, v);
-                        //int pink = mFragment.getResources().getColor(R.color.oneEduPink);
+                        mRevealColorView.animate().alpha(0).setStartDelay(200).setDuration(300);
+                        mRevealPHView.animate().alpha(1).setStartDelay(200).setDuration(300).withEndAction(runnable);
 
-
-                        //mRevealColorView.reveal(p.x, p.y, pink, v.getWidth() / 2, 500, listener);
+                        mRevealColorView.reveal(p.x, p.y, pink, v.getWidth() / 2, 300, null);
                     }
                 }).start();
     }
@@ -239,8 +250,6 @@ public class APListController implements WifiAdapter.OnItemClickListener, View.O
                 mDialog = new WifiDialogFragment();
                 mDialog.setArgs(APListController.this, null, false);
 
-                //mRevealColorView.animate().alpha(0.0f).setDuration(300).start();
-                //mRevealColorView.hide(mRevealColorView.getWidth() / 2, 0, mFragment.getResources().getColor(android.R.color.transparent), 0, 300, null);
                 int[] screenLocation = new int[2];
                 mRevealColorView.getLocationOnScreen(screenLocation);
                 int orientation = mContext.getResources().getConfiguration().orientation;
@@ -255,7 +264,6 @@ public class APListController implements WifiAdapter.OnItemClickListener, View.O
 
                 mContext.getFragmentManager().beginTransaction()
                         .addToBackStack("AddNetwork")
-                        .setCustomAnimations(R.anim.fade_in, R.anim.fade_out, 0, R.anim.fade_out)
                         .replace(R.id.container, mDialog)
                         .commit();
             }

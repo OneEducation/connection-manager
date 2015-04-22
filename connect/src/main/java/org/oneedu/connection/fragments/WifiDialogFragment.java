@@ -113,7 +113,7 @@ public class WifiDialogFragment extends Fragment implements WifiConfigUiBase {
     public void runEnterAnimation() {
         mView.setTranslationX(mLeftDelta);
         mView.setTranslationY(mTopDelta);
-        mView.animate().translationY(0).setDuration(400)
+        mView.animate().translationY(0).setDuration(mTopDelta > 0 ? 400 : 0)
                 //.setStartDelay(500)
                 .withEndAction(new Runnable() {
                     @Override

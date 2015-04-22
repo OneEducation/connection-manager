@@ -58,7 +58,7 @@ public class APListFragment extends Fragment {
         mWifiAdapter = new WifiAdapter(context, ((MainActivity)context).mWifiService.getAPList());
         mApListView.setAdapter(mWifiAdapter);
 
-        mController = new APListController(this, ((MainActivity)context).mWifiService, ((MainActivity)context).mProxyService);
+        mController = new APListController(this, view, ((MainActivity)context).mWifiService, ((MainActivity)context).mProxyService);
         mWifiAdapter.setOnItemClickListener(mController);
 
         view.findViewById(R.id.fab_add_network).setOnClickListener(mController);
