@@ -40,4 +40,9 @@ public interface WifiConfigUiBase {
     public Button getSubmitButton();
     public Button getForgetButton();
     public Button getCancelButton();
+
+    void setMinPasswordLength(int length);
+    void setPasswordError(int id);
+    void setProxyHostError(int id);
+    void setProxyPortError(int id);
 }

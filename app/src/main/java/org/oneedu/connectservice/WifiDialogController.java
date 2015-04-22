@@ -191,8 +191,6 @@ public class WifiDialogController implements TextWatcher,
             }
         });
 
-        //mSBProxy = (CompoundButton)mView.findViewById(R.id.sb_proxy);
-
         if (mAccessPoint == null) { // new network
             mConfigUi.setTitle(R.string.wifi_add_network);
             mConfigUi.setSignal(mAccessPoint);
@@ -211,7 +209,7 @@ public class WifiDialogController implements TextWatcher,
             mConfigUi.setSubmitButton(context.getString(R.string.wifi_save));
         } else {
             mConfigUi.setTitle(mAccessPoint.ssid);
-            mConfigUi.setSummary(mAccessPoint.getSummary().toString());
+            mConfigUi.setSummary(mAccessPoint.getSummary());
             mConfigUi.setSignal(mAccessPoint);
 
             DetailedState state = mAccessPoint.getState();
@@ -294,7 +292,7 @@ public class WifiDialogController implements TextWatcher,
         Button submit = mConfigUi.getSubmitButton();
         if (submit == null) return;
 
-        boolean enabled = false;
+        boolean enabled = true;
         boolean passwordInvalid = false;
 
         if (mPasswordView != null &&
@@ -307,14 +305,16 @@ public class WifiDialogController implements TextWatcher,
             ((mAccessPoint == null || mAccessPoint.networkId == INVALID_NETWORK_ID) &&
             passwordInvalid)) {
             enabled = false;
-        } else {
-            if (ipAndProxyFieldsAreValid()) {
-                enabled = true;
-            } else {
-                enabled = false;
-            }
         }
-        submit.setEnabled(enabled);
+
+        if (!enabled && passwordInvalid) {
+            mConfigUi.setPasswordError(mPasswordView.length() == 0 ? R.string.require_password : R.string.invalid_password);
+        } else {
+            mConfigUi.setPasswordError(0);
+        }
+
+        boolean ipAndProxyValid = ipAndProxyFieldsAreValid();
+        submit.setEnabled(enabled && ipAndProxyValid);
     }
 
     public WifiConfiguration getConfig() {
@@ -459,16 +459,11 @@ public class WifiDialogController implements TextWatcher,
             String host = mProxyHostView.getText().toString();
             String portStr = mProxyPortView.getText().toString();
             String exclusionList = mProxyExclusionListView.getText().toString();
-            int port = 0;
             int result = 0;
-            try {
-                port = Integer.parseInt(portStr);
-                result = validate(host, portStr, exclusionList);
-            } catch (NumberFormatException e) {
-                result = R.string.proxy_error_invalid_port;
-            }
+            result = validate(host, portStr, exclusionList);
+
             if (result == 0) {
-                ProxyProperties proxyProperties= new ProxyProperties(host, port, exclusionList);
+                ProxyProperties proxyProperties= new ProxyProperties(host, Integer.parseInt(portStr), exclusionList);
                 mLinkProperties.setHttpProxy(proxyProperties);
             } else {
                 return false;
@@ -497,17 +492,28 @@ public class WifiDialogController implements TextWatcher,
      * validate syntax of hostname and port entries
      * @return 0 on success, string resource ID on failure
      */
-    public static int validate(String hostname, String port, String exclList) {
+    public int validate(String hostname, String port, String exclList) {
         Matcher match = HOSTNAME_PATTERN.matcher(hostname);
         String exclListArray[] = exclList.split(",");
 
-        if (!match.matches()) return R.string.proxy_error_invalid_host;
+        if (!match.matches()) {
+            mConfigUi.setProxyHostError(R.string.proxy_error_invalid_host);
+            return R.string.proxy_error_invalid_host;
+        } else {
+            mConfigUi.setProxyHostError(0);
+        }
 
         for (String excl : exclListArray) {
             Matcher m = EXCLUSION_PATTERN.matcher(excl);
             if (!m.matches()) return R.string.proxy_error_invalid_exclusion_list;
         }
 
+        int portError = validateProxyPort(hostname, port);
+        mConfigUi.setProxyPortError(portError);
+        return portError;
+    }
+
+    private int validateProxyPort(String hostname, String port) {
         if (hostname.length() > 0 && port.length() == 0) {
             return R.string.proxy_error_empty_port;
         }
@@ -617,7 +623,7 @@ public class WifiDialogController implements TextWatcher,
             return ret;
         }
         mView.findViewById(R.id.security_fields).setVisibility(View.VISIBLE);
-
+        mConfigUi.setMinPasswordLength(mAccessPointSecurity == AccessPoint.SECURITY_PSK ? 8 : 0);
         if (mPasswordView == null) {
             ret = mPasswordView = (TextView) mView.findViewById(R.id.password);
             mPasswordView.addTextChangedListener(this);

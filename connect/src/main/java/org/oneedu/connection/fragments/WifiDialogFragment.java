@@ -12,6 +12,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.rengwuxian.materialedittext.MaterialEditText;
+
 import org.oneedu.connection.R;
 import org.oneedu.connection.ResizeHeightAnimation;
 import org.oneedu.connection.views.AccessPointTitleLayout;
@@ -210,5 +212,29 @@ public class WifiDialogFragment extends Fragment implements WifiConfigUiBase {
     @Override
     public Button getCancelButton() {
         return mNegative;
+    }
+
+    @Override
+    public void setMinPasswordLength(int length) {
+        MaterialEditText password = (MaterialEditText)mView.findViewById(R.id.password);
+        password.setMinCharacters(length);
+    }
+
+    @Override
+    public void setPasswordError(int id) {
+        MaterialEditText password = (MaterialEditText)mView.findViewById(R.id.password);
+        password.setError(id == 0 ? null : getString(id));
+    }
+
+    @Override
+    public void setProxyHostError(int id) {
+        MaterialEditText host = (MaterialEditText)mView.findViewById(R.id.proxy_hostname);
+        host.setError(id == 0 ? null : getString(id));
+    }
+
+    @Override
+    public void setProxyPortError(int id) {
+        MaterialEditText port = (MaterialEditText)mView.findViewById(R.id.proxy_port);
+        port.setError(id == 0 ? null : getString(id));
     }
 }
