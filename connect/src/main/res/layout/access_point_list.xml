@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:fab="http://schemas.android.com/apk/res-auto"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <TextView
@@ -12,6 +11,27 @@
         android:textSize="40sp"
         android:textStyle="bold"/>
 
+    <FrameLayout
+        android:id="@+id/reveal_container"
+        android:layout_width="@dimen/access_point_width"
+        android:layout_height="@dimen/access_point_main_height"
+        android:layout_below="@id/screen_title"
+        android:layout_centerHorizontal="true">
+
+        <android.support.v7.widget.CardView
+            android:id="@+id/reveal_ph"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:alpha="0"/>
+
+        <at.markushi.ui.RevealColorView
+            android:id="@+id/reveal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+    </FrameLayout>
+
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/ap_list"
         android:layout_width="match_parent"
@@ -19,17 +39,6 @@
         android:layout_centerHorizontal="true"
         android:layout_below="@id/screen_title"
         android:layoutAnimation="@anim/list_cell_animation"/>
-
-    <org.oneedu.uikit.views.RippleBackground
-        android:id="@+id/reveal"
-        android:layout_centerHorizontal="true"
-        android:layout_width="@dimen/access_point_width"
-        android:layout_height="@dimen/access_point_main_height"
-        app:rb_color="@color/oneEduPink"
-        app:rb_radius="32dp"
-        app:rb_rippleAmount="1"
-        app:rb_duration="1000"
-        app:rb_scale="6"/>
 
     <!-- An invisible view aligned to the center of the parent. Allows other
     views to be arranged on either side -->
