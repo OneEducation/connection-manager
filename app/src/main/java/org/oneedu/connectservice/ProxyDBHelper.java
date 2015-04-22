@@ -26,7 +26,7 @@ public class ProxyDBHelper extends SQLiteOpenHelper {
             + COLUMN_USERNAME + " text not null, "
             + COLUMN_HOST + " text not null, "
             + COLUMN_PASSWORD + " text not null, "
-            + COLUMN_PORT + " integer"
+            + COLUMN_PORT + " integer, "
             + COLUMN_STATUS + " integer"
             +");";
 
