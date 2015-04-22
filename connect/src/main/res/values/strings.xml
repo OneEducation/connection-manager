@@ -705,4 +705,6 @@
     <string name="select_network">Select Network</string>
     <string name="enter_details">Enter Details</string>
 
+    <string name="field_incorrect">This field might be incorrect.</string>
+
 </resources>

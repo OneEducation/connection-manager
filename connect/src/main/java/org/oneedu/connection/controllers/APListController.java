@@ -28,12 +28,6 @@ public class APListController implements WifiAdapter.OnItemClickListener, View.O
     private WifiService mWifiService;
     private ProxyService mProxyService;
 
-    private static final int MENU_ID_ADD_NETWORK = Menu.FIRST + 3;
-    private static final int MENU_ID_ADVANCED = Menu.FIRST + 4;
-    private static final int MENU_ID_SCAN = Menu.FIRST + 5;
-    private static final int MENU_ID_CONNECT = Menu.FIRST + 6;
-    private static final int MENU_ID_FORGET = Menu.FIRST + 7;
-    private static final int MENU_ID_MODIFY = Menu.FIRST + 8;
     private WifiDialogFragment mDialog;
     private RippleBackground mRevealColorView;
 
@@ -175,6 +169,10 @@ public class APListController implements WifiAdapter.OnItemClickListener, View.O
 
         WifiConnectingFragment fragment = new WifiConnectingFragment();
         fragment.setArguments(extras);
+
+        if (mDialog != null) {
+            fragment.setTargetFragment(mDialog, 0);
+        }
 
         mContext.getFragmentManager().beginTransaction()
                 .addToBackStack("Connecting")

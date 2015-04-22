@@ -2,6 +2,7 @@ package org.oneedu.connection.fragments;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -16,9 +17,7 @@ import com.rengwuxian.materialedittext.MaterialEditText;
 
 import org.oneedu.connection.R;
 import org.oneedu.connection.ResizeHeightAnimation;
-import org.oneedu.connection.views.AccessPointTitleLayout;
 import org.oneedu.connectservice.AccessPoint;
-import org.oneedu.connectservice.Proxy;
 import org.oneedu.connectservice.WifiDialogController;
 import org.oneedu.connectservice.WifiConfigUiBase;
 
@@ -71,7 +70,7 @@ public class WifiDialogFragment extends Fragment implements WifiConfigUiBase {
         final int thumbnailLeft = bundle.getInt(".left");
         final int thumbnailWidth = bundle.getInt(".width");
         final int thumbnailHeight = bundle.getInt(".height");
-        //mOriginalOrientation = bundle.getInt(".orientation");
+        final int errorCode = bundle.getInt(".ErrorCode", 0);
 
         // Only run the animation if we're coming from the parent activity, not if
         // we're recreated automatically by the window manager (e.g., device rotation)
@@ -82,6 +81,13 @@ public class WifiDialogFragment extends Fragment implements WifiConfigUiBase {
                 @Override
                 public boolean onPreDraw() {
                     mView.getViewTreeObserver().removeOnPreDrawListener(this);
+
+                    mView.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            handleError(errorCode);
+                        }
+                    });
 
                     // Figure out where the thumbnail and full size versions are, relative
                     // to the screen and each other
@@ -110,14 +116,14 @@ public class WifiDialogFragment extends Fragment implements WifiConfigUiBase {
         mView.animate().translationY(0).setDuration(400)
                 //.setStartDelay(500)
                 .withEndAction(new Runnable() {
-            @Override
-            public void run() {
-                int height = mRootView.getHeight();
-                ResizeHeightAnimation resizeAnimation = new ResizeHeightAnimation(mView, height);
-                resizeAnimation.setDuration(400);
-                mView.startAnimation(resizeAnimation);
-            }
-        });
+                    @Override
+                    public void run() {
+                        int height = mRootView.getHeight();
+                        ResizeHeightAnimation resizeAnimation = new ResizeHeightAnimation(mView, height);
+                        resizeAnimation.setDuration(400);
+                        mView.startAnimation(resizeAnimation);
+                    }
+                });
     }
 
     public void setArgs(View.OnClickListener listener,
@@ -125,6 +131,23 @@ public class WifiDialogFragment extends Fragment implements WifiConfigUiBase {
         mEdit = edit;
         mListener = listener;
         mAccessPoint = accessPoint;
+    }
+
+    private void handleError(int errorCode) {
+        switch(errorCode) {
+            case WifiManager.ERROR_AUTHENTICATING:
+                setWifiAuthError(R.string.field_incorrect);
+                break;
+
+            case 407:
+                setProxyAuthError(R.string.field_incorrect);
+                break;
+
+            case 500:
+                setProxyHostError(R.string.field_incorrect);
+                setProxyPortError(R.string.field_incorrect);
+                break;
+        }
     }
 
     @Override
@@ -236,5 +259,21 @@ public class WifiDialogFragment extends Fragment implements WifiConfigUiBase {
     public void setProxyPortError(int id) {
         MaterialEditText port = (MaterialEditText)mView.findViewById(R.id.proxy_port);
         port.setError(id == 0 ? null : getString(id));
+    }
+
+    public void setProxyAuthError(int id) {
+        MaterialEditText username = (MaterialEditText)mView.findViewById(R.id.proxy_username);
+        MaterialEditText password = (MaterialEditText)mView.findViewById(R.id.proxy_password);
+        username.setError(id == 0 ? null : getString(id));
+        password.setError(id == 0 ? null : getString(id));
+    }
+
+    public void setWifiAuthError(int id) {
+        setPasswordError(id);
+        MaterialEditText identity = (MaterialEditText)mView.findViewById(R.id.identity);
+        identity.setError(id == 0 ? null : getString(id));
+
+        MaterialEditText anonymous = (MaterialEditText)mView.findViewById(R.id.anonymous);
+        anonymous.setError(id == 0 ? null : getString(id));
     }
 }

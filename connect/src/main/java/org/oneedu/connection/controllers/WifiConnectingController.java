@@ -1,9 +1,11 @@
 package org.oneedu.connection.controllers;
 
+import android.app.Fragment;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -20,9 +22,8 @@ import org.oneedu.uikit.widgets.ProgressBar;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
-import java.util.Date;
 
 /**
  * Created by dongseok0 on 27/03/15.
@@ -37,6 +38,7 @@ public class WifiConnectingController {
     private WifiInfo mLastInfo;
     private Handler mTimeoutHandler;
     private AccessPointTitleLayout m_l_title;
+    private Bundle                  mTargetBundle;
 
     public WifiConnectingController(WifiConnectingFragment fragment, View rootView, AccessPoint ap, WifiConfiguration config, WifiService service) {
         mFragment = fragment;
@@ -44,6 +46,11 @@ public class WifiConnectingController {
         mAP = ap;
         mWifiService = service;
         m_l_title = (AccessPointTitleLayout) mView.findViewById(R.id.main);
+
+        Fragment targetFragment = fragment.getTargetFragment();
+        if (targetFragment != null) {
+            mTargetBundle = targetFragment.getArguments();
+        }
 
         mWifiService.setOnUpdateConnectionStateListener(new WifiService.onUpdateConnectionStateListener() {
             @Override
@@ -59,6 +66,9 @@ public class WifiConnectingController {
                 if (mLastInfo != null && AccessPoint.convertToQuotedString(mAP.ssid).equals(mLastInfo.getSSID())) {
                     if (supplicantError == WifiManager.ERROR_AUTHENTICATING) {
                         accessPointResult(false);
+                        if (mTargetBundle != null) {
+                            mTargetBundle.putInt(".ErrorCode", WifiManager.ERROR_AUTHENTICATING);
+                        }
                         return;
                     }
 
@@ -76,12 +86,16 @@ public class WifiConnectingController {
             }
         });
 
-        mTimeoutHandler = new Handler() {
+        mTimeoutHandler = new Handler(new Handler.Callback() {
             @Override
-            public void handleMessage(Message msg) {
+            public boolean handleMessage(Message msg) {
                 accessPointResult(false);
+                if (mTargetBundle != null) {
+                    mTargetBundle.putInt(".ErrorCode", WifiManager.ERROR_AUTHENTICATING);
+                }
+                return true;
             }
-        };
+        });
         mTimeoutHandler.sendEmptyMessageDelayed(1, 30000);
 
         if (config == null) {
@@ -120,26 +134,21 @@ public class WifiConnectingController {
         // Testing internet connection do not affect to wifi configuration, so need to trigger scan wifi to update on list
         mWifiService.scanWifi();
 
-        mFragment.getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (!result) {
-                    ((TextView) mView.findViewById(R.id.connectToInternet)).setTextColor(mFragment.getResources().getColor(R.color.oneEduPink));
-                    ((ProgressBar) mView.findViewById(R.id.connectToInternetProgress)).fail();
-                    mView.findViewById(R.id.l_buttons).setVisibility(View.VISIBLE);
-                } else {
-                    m_l_title.setInternet(true);
-                    ((TextView) mView.findViewById(R.id.connectToInternet)).setTextColor(mFragment.getResources().getColor(R.color.oneEduGreen));
-                    ((ProgressBar) mView.findViewById(R.id.connectToInternetProgress)).done();
-                    mView.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            popFragment("APList");
-                        }
-                    }, 1000);
+        if (!result) {
+            ((TextView) mView.findViewById(R.id.connectToInternet)).setTextColor(mFragment.getResources().getColor(R.color.oneEduPink));
+            ((ProgressBar) mView.findViewById(R.id.connectToInternetProgress)).fail();
+            mView.findViewById(R.id.l_buttons).setVisibility(View.VISIBLE);
+        } else {
+            m_l_title.setInternet(true);
+            ((TextView) mView.findViewById(R.id.connectToInternet)).setTextColor(mFragment.getResources().getColor(R.color.oneEduGreen));
+            ((ProgressBar) mView.findViewById(R.id.connectToInternetProgress)).done();
+            mView.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    popFragment("APList");
                 }
-            }
-        });
+            }, 1000);
+        }
     }
 
     public void clearListeners() {
@@ -162,9 +171,7 @@ public class WifiConnectingController {
             Process ipProcess = runtime.exec("/system/bin/ping -c 1 8.8.8.8");
             int     exitValue = ipProcess.waitFor();
             return (exitValue == 0);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
 
@@ -175,32 +182,39 @@ public class WifiConnectingController {
         mView.findViewById(R.id.l_connectInternet).setVisibility(View.VISIBLE);
 
         if (mHandler == null) {
-            mHandler = new Handler() {
+            mHandler = new Handler(new Handler.Callback() {
                 int retry = 3;
 
                 @Override
-                public void handleMessage(Message msg) {
+                public boolean handleMessage(Message msg) {
                     switch(msg.what) {
-                        case 1:
+                        case 200:
                             internetTestResult(true);
                             break;
 
-                        case 0:
+                        // Retry if unable to connect to local proxy (sandroProxy)
+                        case -1:
                             if (--retry > 0) {
                                 internetTest();
-                            } else {
-                                internetTestResult(false);
                             }
                             break;
+
+                        default:
+                            if (mTargetBundle != null) {
+                                mTargetBundle.putInt(".ErrorCode", msg.what);
+                            }
+                            internetTestResult(false);
+                            break;
                     }
+                    return true;
                 }
-            };
+            });
         }
 
-        isNetworkAvailable(mHandler, 1000);
+        isInternetAvailable(mHandler, 1000);
     }
 
-    private void isNetworkAvailable(final Handler handler, final int timeout) {
+    private void isInternetAvailable(final Handler handler, final int timeout) {
         // ask fo message '0' (not connected) or '1' (connected) on 'handler'
         // the answer must be send before before within the 'timeout' (in milliseconds)
 
@@ -208,6 +222,7 @@ public class WifiConnectingController {
             @Override
             public void run() {
                 HttpURLConnection urlc = null;
+                int responseCode = -1;
                 try {
                     URL url = new URL("http://www.google.com");
                     urlc = (HttpURLConnection) url.openConnection();
@@ -216,20 +231,28 @@ public class WifiConnectingController {
                     urlc.setConnectTimeout(timeout);
                     urlc.setUseCaches(false);
                     urlc.connect();
-                    if (urlc.getResponseCode() == 200) {
-                        handler.sendEmptyMessage(1);
-                        return;
-                    }
-                } catch (MalformedURLException e1) {
-                    e1.printStackTrace();
+                    responseCode = urlc.getResponseCode();
+                    Log.d("isInternetAvailable", "Response code: " + responseCode);
+
+                } catch (SocketTimeoutException ste) {
+                    ste.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
+
+                    try {
+                        if (urlc != null) {
+                            responseCode = urlc.getResponseCode();
+                            Log.d("isInternetAvailable", "Response code after exception: " + responseCode);
+                        }
+                    } catch (IOException e2) {
+                        e2.printStackTrace();
+                    }
                 } finally {
                     if (urlc != null)
                         urlc.disconnect();
                 }
 
-                handler.sendEmptyMessage(0);
+                handler.sendEmptyMessage(responseCode);
             }
         }.start();
     }
