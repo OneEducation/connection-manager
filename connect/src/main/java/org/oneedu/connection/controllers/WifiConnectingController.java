@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import org.oneedu.connection.NoSSLv3Factory;
 import org.oneedu.connection.R;
 import org.oneedu.connection.fragments.WifiConnectingFragment;
 import org.oneedu.connection.views.AccessPointTitleLayout;
@@ -25,6 +26,8 @@ import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.Map;
+
+import javax.net.ssl.HttpsURLConnection;
 
 /**
  * Created by dongseok0 on 27/03/15.
@@ -188,6 +191,7 @@ public class WifiConnectingController {
 
                 @Override
                 public boolean handleMessage(Message msg) {
+                    Log.d("internetTest", "reponse code: " + msg.what + " / retry remains: " + retry);
                     switch(msg.what) {
                         case 301:
                         case 200:
@@ -225,15 +229,16 @@ public class WifiConnectingController {
         new Thread() {
             @Override
             public void run() {
-                HttpURLConnection urlc = null;
+                HttpsURLConnection urlc = null;
                 int responseCode = -1;
                 try {
                     URL url = new URL("https://www.wikipedia.org/");
-                    urlc = (HttpURLConnection) url.openConnection();
+                    urlc = (HttpsURLConnection) url.openConnection();
                     urlc.setRequestProperty("User-Agent", "Android Application: Connect 1.0");
                     urlc.setRequestProperty("Connection", "close");
                     urlc.setConnectTimeout(timeout);
                     urlc.setUseCaches(false);
+                    urlc.setSSLSocketFactory(new NoSSLv3Factory());
                     urlc.connect();
                     responseCode = urlc.getResponseCode();
                     Log.d("isInternetAvailable", "Response code: " + responseCode);
