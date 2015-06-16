@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.util.Map;
 
 /**
  * Created by dongseok0 on 27/03/15.
@@ -188,6 +189,7 @@ public class WifiConnectingController {
                 @Override
                 public boolean handleMessage(Message msg) {
                     switch(msg.what) {
+                        case 301:
                         case 200:
                             internetTestResult(true);
                             break;
@@ -196,6 +198,8 @@ public class WifiConnectingController {
                         case -1:
                             if (--retry > 0) {
                                 internetTest();
+                            } else {
+                                internetTestResult(false);
                             }
                             break;
 
@@ -224,7 +228,7 @@ public class WifiConnectingController {
                 HttpURLConnection urlc = null;
                 int responseCode = -1;
                 try {
-                    URL url = new URL("http://www.google.com");
+                    URL url = new URL("https://www.wikipedia.org/");
                     urlc = (HttpURLConnection) url.openConnection();
                     urlc.setRequestProperty("User-Agent", "Android Application: Connect 1.0");
                     urlc.setRequestProperty("Connection", "close");
@@ -233,6 +237,10 @@ public class WifiConnectingController {
                     urlc.connect();
                     responseCode = urlc.getResponseCode();
                     Log.d("isInternetAvailable", "Response code: " + responseCode);
+
+                    for (Map.Entry entry : urlc.getHeaderFields().entrySet()) {
+                        Log.d("isInternetAvailable", entry.getKey() + ": " + entry.getValue());
+                    }
 
                 } catch (SocketTimeoutException ste) {
                     ste.printStackTrace();
