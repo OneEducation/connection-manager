@@ -26,6 +26,7 @@ public class MainActivity extends BaseActivity {
     private WifiEnabler mWifiEnabler;
     private TextView mWifiStateView;
     private View mWifiIcon;
+    public boolean mIsBlockBackBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,10 +64,13 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        if (getFragmentManager().getBackStackEntryCount() <= 1) {
+        FragmentManager fm = getFragmentManager();
+        if (fm.getBackStackEntryCount() <= 1) {
             this.finish();
+        } else if ("Connecting".equals(fm.getBackStackEntryAt(fm.getBackStackEntryCount() - 1).getName())) {
+            return;
         } else {
-            getFragmentManager().popBackStack();
+            fm.popBackStack();
         }
     }
 

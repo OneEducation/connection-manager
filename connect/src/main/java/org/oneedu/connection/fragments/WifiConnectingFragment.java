@@ -97,4 +97,10 @@ public class WifiConnectingFragment extends Fragment {
             }
         }
     }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mController.clearListeners();
+    }
 }
