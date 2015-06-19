@@ -909,7 +909,10 @@ public class WifiDialogController implements TextWatcher,
                     mProxyHostView.setText(mProxy.getHost());
                     mProxyPortView.setText(Integer.toString(mProxy.getPort()));
                     mProxyUsername.setText(mProxy.getUsername());
-                    mProxyPassword.setText(mProxy.getPassword());
+
+                    if (mAccessPoint != null && mAccessPoint.networkId != INVALID_NETWORK_ID) {
+                        mProxyPassword.setHint(R.string.proxy_pw_unchanged);
+                    }
                 }
             }
         } else {
@@ -1056,11 +1059,15 @@ public class WifiDialogController implements TextWatcher,
     }
 
     public String getProxyUsername() {
-        return ((EditText)mView.findViewById(R.id.proxy_username)).getText().toString();
+        return mProxyUsername.getText().toString();
     }
 
     public String getProxyPassword() {
-        return ((EditText)mView.findViewById(R.id.proxy_password)).getText().toString();
+        if (mProxyPassword.length() > 0) {
+            return mProxyPassword.getText().toString();
+        } else {
+            return mProxy.getPassword();
+        }
     }
 
     @Override
