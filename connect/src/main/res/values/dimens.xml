@@ -8,4 +8,6 @@
 
     <dimen name="main_view_left_margin">100dp</dimen>
     <dimen name="main_view_right_margin">100dp</dimen>
+
+    <dimen name="fab_margin">24dp</dimen>
 </resources>

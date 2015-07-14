@@ -55,6 +55,9 @@ public class APListFragment extends Fragment {
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         mApListView.setLayoutManager(llm);
 
+        // Default animator with change animation enabled from v22.0 (fade in/out)
+        mApListView.getItemAnimator().setSupportsChangeAnimations(false);
+
         mWifiAdapter = new WifiAdapter(context, ((MainActivity)context).mWifiService.getAPList());
         mApListView.setAdapter(mWifiAdapter);
 

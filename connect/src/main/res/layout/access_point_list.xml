@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:fab="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <TextView
@@ -59,20 +59,16 @@
         android:layout_alignParentBottom="true">
         <!--android:background="#87878787"-->
 
-        <com.software.shell.fab.ActionButton
+        <android.support.design.widget.FloatingActionButton
             android:id="@+id/fab_add_network"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_marginRight="@dimen/fab_margin"
-            fab:type="DEFAULT"
-            fab:button_color="@color/oneEduPink"
-            fab:image="@drawable/fab_plus_icon"
-            fab:image_size="24dp"
-            fab:shadow_color="#757575"
-            fab:shadow_radius="1.0dp"
-            fab:shadow_xOffset="0.5dp"
-            fab:shadow_yOffset="1.0dp"
-            fab:show_animation="@anim/fab_roll_from_right"/>
+            android:src="@drawable/ic_add_white_24dp"
+            app:backgroundTint="@color/oneEduPink"
+            app:elevation="6dp"
+            app:fabSize="normal"/>
+
     </RelativeLayout>
 </RelativeLayout>
