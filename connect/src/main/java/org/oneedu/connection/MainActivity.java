@@ -32,7 +32,9 @@ public class MainActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        startService(new Intent("org.oneedu.connection.PROXY"));
+        Intent i = new Intent("org.oneedu.connection.PROXY");
+        i.setComponent(new ComponentName("org.oneedu.connection", "org.oneedu.connectservice.ProxyService"));
+        startService(i);
         mWifiStateView = (TextView)findViewById(R.id.wifi_state_view);
         mWifiIcon = findViewById(R.id.wifi_icon);
     }

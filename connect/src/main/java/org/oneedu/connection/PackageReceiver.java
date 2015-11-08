@@ -1,6 +1,7 @@
 package org.oneedu.connection;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -25,6 +26,7 @@ public class PackageReceiver extends BroadcastReceiver {
         switch (action) {
             case Intent.ACTION_MY_PACKAGE_REPLACED:
                 Intent i = new Intent("org.oneedu.connection.PROXY");
+                i.setComponent(new ComponentName("org.oneedu.connection", "org.oneedu.connectservice.ProxyService"));
                 context.startService(i);
                 checkAppUniverse(context);
                 break;
@@ -48,7 +50,7 @@ public class PackageReceiver extends BroadcastReceiver {
             Log.d(TAG, "App Universe is not installed.");
             intent.setAction(InstallerService.ACTION_INSTALL);
         }
-
+        intent.setComponent(new ComponentName("org.oneedu.connection", "org.oneedu.connection.InstallerService"));
         context.startService(intent);
     }
 }

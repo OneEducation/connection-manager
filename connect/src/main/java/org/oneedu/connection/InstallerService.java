@@ -1,6 +1,7 @@
 package org.oneedu.connection;
 
 import android.app.IntentService;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.support.annotation.Nullable;
@@ -44,6 +45,7 @@ public class InstallerService extends IntentService {
             Intent install = new Intent(getApplicationContext(), InstallerService.class);
             install.setAction(ACTION_INSTALL);
             install.putExtras(intent);
+            install.setComponent(new ComponentName("org.oneedu.connection", "org.oneedu.connection.InstallerService"));
             startService(install);
         }
 

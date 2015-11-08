@@ -1,0 +1,3 @@
+[submodule "android-proxy-library"]
+	path = android-proxy-library
+	url = https://github.com/dongseok0/android-proxy.git
