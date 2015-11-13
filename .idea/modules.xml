@@ -3,11 +3,10 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Connection.iml" filepath="$PROJECT_DIR$/Connection.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android_wifi_library/android_wifi_library.iml" filepath="$PROJECT_DIR$/android_wifi_library/android_wifi_library.iml" />
       <module fileurl="file://$PROJECT_DIR$/connect/connect.iml" filepath="$PROJECT_DIR$/connect/connect.iml" />
       <module fileurl="file://$PROJECT_DIR$/sandroProxyLib/sandroProxyLib.iml" filepath="$PROJECT_DIR$/sandroProxyLib/sandroProxyLib.iml" />
       <module fileurl="file://$PROJECT_DIR$/uikit/uikit.iml" filepath="$PROJECT_DIR$/uikit/uikit.iml" />
     </modules>
   </component>
 </project>
-

@@ -1,3 +1,9 @@
 <resources>
-
+    <declare-styleable name="WifiEncryptionState">
+        <attr name="state_encrypted" format="boolean" />
+    </declare-styleable>
+    <declare-styleable name="WifiConnectedState">
+        <attr name="state_connected" format="boolean" />
+        <attr name="state_internet" format="boolean" />
+    </declare-styleable>
 </resources>

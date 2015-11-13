@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion "21.1.2"
+    compileSdkVersion 23
+    buildToolsVersion "23.0.1"
 
     signingConfigs {
         sys {
@@ -16,9 +16,9 @@ android {
     defaultConfig {
         applicationId "org.oneedu.connection"
         minSdkVersion 18
-        targetSdkVersion 21
-        versionCode 220
-        versionName "2.2.0"
+        targetSdkVersion 23
+        versionCode 300
+        versionName "3.0.0"
     }
     buildTypes {
         release {
@@ -39,8 +39,9 @@ repositories {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile project(':app')
+    compile project(':android_wifi_library')
     compile project(':uikit')
+    compile project(':sandroProxyLib')
     compile 'pl.tajchert:waitingdots:0.1.0'
     compile 'com.github.markushi:android-ui:1.2'
 }

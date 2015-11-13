@@ -2,25 +2,23 @@ package org.oneedu.connection.fragments;
 
 import android.app.Fragment;
 import android.content.Context;
-import android.net.NetworkInfo;
-import android.net.wifi.WifiInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SimpleItemAnimator;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
-import android.widget.Toast;
 
 import org.oneedu.connection.controllers.APListController;
-import org.oneedu.connectservice.AccessPoint;
+import org.oneedu.connection.data.AccessPoint;
 import org.oneedu.connection.MainActivity;
 import org.oneedu.connection.R;
 import org.oneedu.connection.WifiAdapter;
-import org.oneedu.connectservice.WifiService;
+import org.oneedu.connection.services.WifiService;
 
 import java.util.ArrayList;
 
@@ -56,7 +54,10 @@ public class APListFragment extends Fragment {
         mApListView.setLayoutManager(llm);
 
         // Default animator with change animation enabled from v22.0 (fade in/out)
-        mApListView.getItemAnimator().setSupportsChangeAnimations(false);
+        RecyclerView.ItemAnimator animator = mApListView.getItemAnimator();
+        if (animator instanceof SimpleItemAnimator) {
+            ((SimpleItemAnimator) animator).setSupportsChangeAnimations(false);
+        }
 
         mWifiAdapter = new WifiAdapter(context, ((MainActivity)context).mWifiService.getAPList());
         mApListView.setAdapter(mWifiAdapter);

@@ -17,9 +17,9 @@ import com.rengwuxian.materialedittext.MaterialEditText;
 
 import org.oneedu.connection.R;
 import org.oneedu.connection.ResizeHeightAnimation;
-import org.oneedu.connectservice.AccessPoint;
-import org.oneedu.connectservice.WifiDialogController;
-import org.oneedu.connectservice.WifiConfigUiBase;
+import org.oneedu.connection.data.AccessPoint;
+import org.oneedu.connection.controllers.WifiDialogController;
+import org.oneedu.connection.interfaces.WifiConfigUiBase;
 
 /**
  * Created by dongseok0 on 25/03/15.
@@ -44,7 +44,7 @@ public class WifiDialogFragment extends Fragment implements WifiConfigUiBase {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mRootView = getLayoutInflater().inflate(R.layout.wifi_dialog2, null);
+        mRootView = getLayoutInflater().inflate(R.layout.wifi_dialog, null);
 
         mView = mRootView.findViewById(R.id.cardView);
         mPositive = (Button)mView.findViewById(R.id.positive);

@@ -428,6 +428,7 @@ public class Proxy implements Plugin {
                 }
                 startListener(l);
             } catch (IOException ioe) {
+                ioe.printStackTrace();
                 _logger.warning("Unable to start listener " + spec);
                 if (_ui != null)
                     _ui.proxyStartError(spec, ioe);

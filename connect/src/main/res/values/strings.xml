@@ -707,4 +707,10 @@
 
     <string name="field_incorrect">This field might be incorrect.</string>
 
+    <string name="install_google_service">Install google service</string>
+
+    <string name="check_proxy">Check proxy details</string>
+    <string name="invalid_password">Password isn\'t valid.</string>
+    <string name="require_password">Password is required.</string>
+    <string name="proxy_pw_unchanged">Proxy Password (unchanged)</string>
 </resources>

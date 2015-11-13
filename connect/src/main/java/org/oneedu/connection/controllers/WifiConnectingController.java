@@ -15,9 +15,9 @@ import android.widget.TextView;
 import org.oneedu.connection.R;
 import org.oneedu.connection.fragments.WifiConnectingFragment;
 import org.oneedu.connection.views.AccessPointTitleLayout;
-import org.oneedu.connectservice.AccessPoint;
-import org.oneedu.connectservice.ProxyDB;
-import org.oneedu.connectservice.WifiService;
+import org.oneedu.connection.data.AccessPoint;
+import org.oneedu.connection.data.ProxyDB;
+import org.oneedu.connection.services.WifiService;
 import org.oneedu.uikit.widgets.ProgressBar;
 
 import java.io.IOException;
@@ -60,6 +60,7 @@ public class WifiConnectingController {
 
                 // When getting authenticate error event from supplicant_state_change_action, there is no info about which network.
                 // So keep the last wifi info and use it if there is no active wifi info.
+                // Seems fixed in Lollipop but keep remain it for JB ( or only XO issue )
                 if (!"0x".equals(wifiInfo.getSSID())) {
                     mLastInfo = wifiInfo;
                 }

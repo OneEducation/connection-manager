@@ -14,7 +14,7 @@ import android.widget.TextView;
 import org.oneedu.connection.MainActivity;
 import org.oneedu.connection.R;
 import org.oneedu.connection.controllers.WifiConnectingController;
-import org.oneedu.connectservice.AccessPoint;
+import org.oneedu.connection.data.AccessPoint;
 
 /**
  * Created by dongseok0 on 27/03/15.

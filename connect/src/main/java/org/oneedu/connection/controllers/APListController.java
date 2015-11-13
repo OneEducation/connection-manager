@@ -7,12 +7,14 @@ import android.net.wifi.WifiConfiguration;
 import android.os.Bundle;
 import android.view.View;
 
+import org.oneedu.connection.data.AccessPoint;
 import org.oneedu.connection.R;
 import org.oneedu.connection.WifiAdapter;
 import org.oneedu.connection.fragments.APListFragment;
 import org.oneedu.connection.fragments.WifiConnectingFragment;
 import org.oneedu.connection.fragments.WifiDialogFragment;
-import org.oneedu.connectservice.*;
+import org.oneedu.connection.services.ProxyService;
+import org.oneedu.connection.services.WifiService;
 
 import at.markushi.ui.RevealColorView;
 
@@ -116,7 +118,7 @@ public class APListController implements WifiAdapter.OnItemClickListener, View.O
 
     }
 
-    void submit(final org.oneedu.connectservice.WifiDialogController configController) {
+    void submit(final WifiDialogController configController) {
 
         WifiConfiguration config = configController.getConfig();
 
