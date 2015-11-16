@@ -216,9 +216,8 @@ public class WifiService extends Service {
             //ignoring supplicant state change when network is connected
             //to get more fine grained information.
             android.net.wifi.SupplicantState state = intent.getParcelableExtra(WifiManager.EXTRA_NEW_STATE);
-            //if (!mConnected.get() && SupplicantState.isHandshakeState(state)) {
             if (!mConnected.get() && SupplicantState.isHandshake(state)) {
-                updateConnectionState(android.net.wifi.WifiInfo.getDetailedStateOf(state));
+                updateConnectionState(WifiInfo.getDetailedStateOf(state));
             } else {
                 // During a connect, we may have the supplicant
                 // state change affect the detailed network state.
@@ -230,7 +229,7 @@ public class WifiService extends Service {
                 int supplicantError = intent.getIntExtra(WifiManager.EXTRA_SUPPLICANT_ERROR, 0);
 
                 mOnUpdateConnectionStateListener.onUpdateConnectionStateChanged(mWifiManager.getConnectionInfo(),
-                        android.net.wifi.WifiInfo.getDetailedStateOf(state), supplicantError);
+                        WifiInfo.getDetailedStateOf(state), supplicantError);
             }
 
         } else if (WifiManager.NETWORK_STATE_CHANGED_ACTION.equals(action)) {
