@@ -74,6 +74,7 @@ public class APListFragment extends Fragment {
                 if (wifiAdapter == null) {
                     wifiAdapter = new WifiAdapter(context, apns);
                     wifiAdapter.setOnItemClickListener(mController);
+                    mApListView.scheduleLayoutAnimation();
                     mApListView.setAdapter(wifiAdapter);
                 } else {
                     wifiAdapter.set(apns);
