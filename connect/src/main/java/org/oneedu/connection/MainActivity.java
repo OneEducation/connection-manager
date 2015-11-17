@@ -5,12 +5,9 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.IBinder;
-import android.util.Log;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.TextView;
@@ -19,18 +16,6 @@ import org.oneedu.connection.fragments.APListFragment;
 import org.oneedu.connection.services.ProxyService;
 import org.oneedu.connection.services.WifiService;
 import org.oneedu.uikit.activites.BaseActivity;
-import org.sandrob.bouncycastle.util.io.Streams;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
 
 public class MainActivity extends BaseActivity {
 
@@ -40,7 +25,6 @@ public class MainActivity extends BaseActivity {
     private WifiEnabler mWifiEnabler;
     private TextView mWifiStateView;
     private View mWifiIcon;
-    public boolean mIsBlockBackBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
