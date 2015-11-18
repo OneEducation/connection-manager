@@ -28,7 +28,7 @@ import android.widget.CompoundButton;
 import android.widget.Toast;
 
 import org.dongseok0.library.wifi.Wifi;
-import org.dongseok0.library.wifi.reflection.WifiManager;
+import org.dongseok0.library.wifi.wifimanager.WifiManager;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 

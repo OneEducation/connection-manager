@@ -45,27 +45,21 @@ import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import org.dongseok0.library.wifi.Wifi;
 import org.dongseok0.library.wifi.android.Credentials;
 import org.dongseok0.library.wifi.android.IpAssignment;
 import org.dongseok0.library.wifi.android.NetworkUtils;
 import org.dongseok0.library.wifi.android.ProxySettings;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.dongseok0.library.wifi.utils.WifiConfigurationUtil;
 import org.oneedu.connection.R;
 import org.oneedu.connection.data.AccessPoint;
 import org.oneedu.connection.data.Proxy;
 import org.oneedu.connection.interfaces.WifiConfigUiBase;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import java.util.Enumeration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -226,7 +220,7 @@ public class WifiDialogController implements TextWatcher,
             boolean showAdvancedFields = true;
             if (mAccessPoint.networkId != INVALID_NETWORK_ID) {
                 WifiConfiguration config = mAccessPoint.getConfig();
-                if (WifiConfigurationUtil.getIpAssignment(config) == IpAssignment.STATIC) {
+                if (Wifi.getWifiConfigurationHelper().getIpAssignment(config) == IpAssignment.STATIC) {
                     //mIpSettingsSpinner.setSelection(STATIC_IP);
                     setInitialPos(mIpSettingsSpinner, STATIC_IP);
                     showAdvancedFields = true;
@@ -240,7 +234,7 @@ public class WifiDialogController implements TextWatcher,
                 }*/
 
 
-                if (WifiConfigurationUtil.getProxySettings(config) == ProxySettings.STATIC) {
+                if (Wifi.getWifiConfigurationHelper().getProxySettings(config) == ProxySettings.STATIC) {
                     //mProxySettingsSpinner.setSelection(PROXY_STATIC);
                     setInitialPos(mProxySB, true);
                     //showAdvancedFields = true;
@@ -414,10 +408,10 @@ public class WifiDialogController implements TextWatcher,
                 }
                 String caCert = (String) mEapCaCertSpinner.getSelectedItem();
                 if (caCert.equals(unspecifiedCert)) caCert = "";
-                WifiConfigurationUtil.setCaCertificateAlias(config, caCert);
+                Wifi.getWifiConfigurationHelper().setCaCertificateAlias(config, caCert);
                 String clientCert = (String) mEapUserCertSpinner.getSelectedItem();
                 if (clientCert.equals(unspecifiedCert)) clientCert = "";
-                WifiConfigurationUtil.setClientCertificateAlias(config, clientCert);
+                Wifi.getWifiConfigurationHelper().setClientCertificateAlias(config, clientCert);
                 config.enterpriseConfig.setIdentity(mEapIdentityView.getText().toString());
                 config.enterpriseConfig.setAnonymousIdentity(
                         mEapAnonymousView.getText().toString());
@@ -440,7 +434,7 @@ public class WifiDialogController implements TextWatcher,
 //        config.proxySettings = mProxySettings;
 //        config.ipAssignment = mIpAssignment;
 //        config.linkProperties = new LinkProperties(mLinkProperties);
-        WifiConfigurationUtil.setIpProxy(config, mJsonConfig);
+        Wifi.getWifiConfigurationHelper().setIpProxy(config, mJsonConfig);
 
         return config;
     }
@@ -709,8 +703,8 @@ public class WifiDialogController implements TextWatcher,
                         mPhase2Spinner.setSelection(phase2Method);
                         break;
                 }
-                setSelection(mEapCaCertSpinner, WifiConfigurationUtil.getCaCertificateAlias(enterpriseConfig));
-                setSelection(mEapUserCertSpinner, WifiConfigurationUtil.getClientCertificateAlias(enterpriseConfig));
+                setSelection(mEapCaCertSpinner, Wifi.getWifiConfigurationHelper().getCaCertificateAlias(enterpriseConfig));
+                setSelection(mEapUserCertSpinner, Wifi.getWifiConfigurationHelper().getClientCertificateAlias(enterpriseConfig));
                 mEapIdentityView.setText(enterpriseConfig.getIdentity());
                 mEapAnonymousView.setText(enterpriseConfig.getAnonymousIdentity());
             } else {
@@ -918,7 +912,7 @@ public class WifiDialogController implements TextWatcher,
                 });
             }
             if (config != null) {
-                String[] proxy = WifiConfigurationUtil.getProxyFields(config);
+                String[] proxy = Wifi.getWifiConfigurationHelper().getProxyFields(config);
                 if (proxy != null) {
                     mProxyHostView.setText(proxy[0]);
                     mProxyPortView.setText(proxy[1]);

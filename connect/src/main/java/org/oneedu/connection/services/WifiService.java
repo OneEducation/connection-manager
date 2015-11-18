@@ -38,7 +38,7 @@ public class WifiService extends Service {
     private IntentFilter mFilter;
     private BroadcastReceiver mReceiver;
     private Scanner mScanner;
-    private org.dongseok0.library.wifi.reflection.WifiManager mWifiManager;
+    private org.dongseok0.library.wifi.wifimanager.WifiManager mWifiManager;
 
     // Combo scans can take 5-6s to complete - set to 10s.
     private static final int WIFI_RESCAN_INTERVAL_MS = 10 * 1000;

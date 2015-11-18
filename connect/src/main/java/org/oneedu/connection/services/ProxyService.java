@@ -4,7 +4,6 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.wifi.SupplicantState;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
@@ -14,8 +13,8 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import org.dongseok0.library.wifi.Wifi;
 import org.dongseok0.library.wifi.android.ProxySettings;
-import org.dongseok0.library.wifi.utils.WifiConfigurationUtil;
 import org.oneedu.connection.controllers.WifiDialogController;
 import org.oneedu.connection.data.ProxyDB;
 import org.sandrop.webscarab.model.Preferences;
@@ -42,7 +41,6 @@ public class ProxyService extends Service {
     private Context mContext;
     private ProxyDB proxyDB;
     private WifiManager mWifiManager;
-    private ConnectivityManager mConnectivityManager;
 
     @Override
     public void onCreate() {
@@ -50,7 +48,6 @@ public class ProxyService extends Service {
 
         mContext = getApplicationContext();
         mWifiManager = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
-        mConnectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
 
         proxyDB = ProxyDB.getInstance(mContext);
 
@@ -134,16 +131,16 @@ public class ProxyService extends Service {
         WifiConfiguration config = controller.getConfig();
         String ssid = config.SSID;
 
-        if (WifiConfigurationUtil.getProxySettings(config) == ProxySettings.STATIC
+        if (Wifi.getWifiConfigurationHelper().getProxySettings(config) == ProxySettings.STATIC
                 && controller.getProxyUsername().length() > 0
                 && controller.getProxyPassword().length() > 0) {
 
-            String[] proxy = WifiConfigurationUtil.getProxyFields(config);
+            String[] proxy = Wifi.getWifiConfigurationHelper().getProxyFields(config);
             String username = controller.getProxyUsername();
             String password = controller.getProxyPassword();
             proxyDB.addOrUpdateProxy(ssid, proxy[0], Integer.parseInt(proxy[1]), username, password);
 
-            WifiConfigurationUtil.setProxyFields(config, "localhost", "9008", "");
+            Wifi.getWifiConfigurationHelper().setProxyFields(config, "localhost", "9008", "");
         } else {
             proxyDB.deleteProxy(ssid);
         }

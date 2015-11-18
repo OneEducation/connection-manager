@@ -26,7 +26,8 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.util.Log;
 
-import org.dongseok0.library.wifi.utils.WifiConfigurationUtil;
+import org.dongseok0.library.wifi.Wifi;
+import org.dongseok0.library.wifi.wificonfiguration.WifiConfigurationHelper;
 import org.oneedu.connection.R;
 
 import java.net.ProxySelector;
@@ -376,15 +377,15 @@ public class AccessPoint implements Comparable {
 
         Context context = mContext;
         if (mConfig != null && mConfig.status == WifiConfiguration.Status.DISABLED) {
-            switch (WifiConfigurationUtil.getDisableReason(mConfig)) {
-                case WifiConfigurationUtil.DISABLED_AUTH_FAILURE:
+            switch (Wifi.getWifiConfigurationHelper().getDisableReason(mConfig)) {
+                case WifiConfigurationHelper.DISABLED_AUTH_FAILURE:
                     setSummary(context.getString(R.string.wifi_disabled_password_failure));
                     break;
-                case WifiConfigurationUtil.DISABLED_DHCP_FAILURE:
-                case WifiConfigurationUtil.DISABLED_DNS_FAILURE:
+                case WifiConfigurationHelper.DISABLED_DHCP_FAILURE:
+                case WifiConfigurationHelper.DISABLED_DNS_FAILURE:
                     setSummary(context.getString(R.string.wifi_disabled_network_failure));
                     break;
-                case WifiConfigurationUtil.DISABLED_UNKNOWN_REASON:
+                case WifiConfigurationHelper.DISABLED_UNKNOWN_REASON:
                     setSummary(context.getString(R.string.wifi_disabled_generic));
             }
         } else if (mRssi == Integer.MAX_VALUE) { // Wifi out of range
