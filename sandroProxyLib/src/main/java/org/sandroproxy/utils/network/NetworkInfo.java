@@ -3,6 +3,7 @@ package org.sandroproxy.utils.network;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -15,7 +16,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.http.conn.util.InetAddressUtils;
 import org.sandrop.webscarab.model.ConnectionDescriptor;
 
 import android.content.Context;
@@ -46,7 +46,7 @@ public class NetworkInfo {
             for (InetAddress addr : addrs) {
                 if (!addr.isLoopbackAddress()) {
                     String sAddr = addr.getHostAddress().toUpperCase();
-                    boolean isIPv4 = InetAddressUtils.isIPv4Address(sAddr);
+                    boolean isIPv4 = !addr.isLoopbackAddress() && addr instanceof Inet4Address;
                     
                     if (useIPv4) {
                         if (isIPv4) 
