@@ -87,6 +87,7 @@
     <orderEntry type="library" exported="" name="concurrent" level="project" />
     <orderEntry type="library" exported="" name="jcifs-1.3.14" level="project" />
     <orderEntry type="library" exported="" name="jnetutils" level="project" />
+    <orderEntry type="library" exported="" name="rhino-1.7.7" level="project" />
     <orderEntry type="library" exported="" name="java_websocket" level="project" />
     <orderEntry type="library" exported="" name="htmlparser" level="project" />
   </component>

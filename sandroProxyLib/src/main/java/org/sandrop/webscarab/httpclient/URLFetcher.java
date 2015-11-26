@@ -32,11 +32,14 @@
 
 package org.sandrop.webscarab.httpclient;
 
+import android.util.Log;
+
 import java.io.IOException;
 
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.InetSocketAddress;
+import java.net.URI;
 import java.net.UnknownHostException;
 
 import java.io.InputStream;
@@ -47,6 +50,7 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.SSLContext;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -60,10 +64,18 @@ import jcifs.util.Base64;
 
 import org.sandrop.webscarab.model.HttpUrl;
 import org.sandrop.webscarab.model.NamedValue;
+import org.sandrop.webscarab.model.Preferences;
 import org.sandrop.webscarab.model.Request;
 import org.sandrop.webscarab.model.Response;
+import org.sandrop.webscarab.plugin.BasicCredential;
+import org.sandrop.webscarab.plugin.CredentialManager;
+import org.sandrop.webscarab.plugin.DigestCredential;
+import org.sandrop.webscarab.plugin.DomainCredential;
 import org.sandrop.webscarab.util.Glob;
 import org.sandroproxy.constants.Constants;
+import org.sandroproxy.utils.PreferenceUtils;
+import org.sandroproxy.utils.pac.PacProxySelector;
+import org.sandroproxy.utils.pac.Proxy;
 
 /** Creates a new instance of URLFetcher
  * @author rdawes
@@ -81,6 +93,7 @@ public class URLFetcher implements HTTPClient {
     private String _httpsProxy = "";
     private int _httpsProxyPort = -1;
     private String[] _noProxy = new String[0];
+    private PacProxySelector _pacProxySelector;
 
     private String _localDomainName = null;
     
@@ -165,6 +178,34 @@ public class URLFetcher implements HTTPClient {
         }
     }
 
+    public void setPacProxy(PacProxySelector pacProxy) {
+        _pacProxySelector = pacProxy;
+    }
+
+    private void checkPacProxy(String url) {
+        if (_pacProxySelector != null) {
+            List<Proxy> proxies = _pacProxySelector.select(URI.create(url));
+
+            if (proxies == null || proxies.size() == 0) return;
+
+            Proxy proxy = proxies.get(0);
+
+            if (proxy.host.equalsIgnoreCase(_httpProxy)) return;
+
+            setHttpProxy(proxy.host, proxy.port);
+            setHttpsProxy(proxy.host, proxy.port);
+
+            String proxyCredentialsUsername = Preferences.getPreference(PreferenceUtils.chainProxyUsername, null);
+            String proxyCredentialsPassword = Preferences.getPreference(PreferenceUtils.chainProxyPassword, null);
+            if (proxy.host != null && !proxy.host.equals("") && proxyCredentialsUsername != null && !proxyCredentialsUsername.equals("")){
+                String[] userNameParts =  proxyCredentialsUsername.split("\\\\");
+                ((CredentialManager)_authenticator).addDomainCredentials(new DomainCredential(proxy.host, userNameParts[0], userNameParts[1], proxyCredentialsPassword));
+                ((CredentialManager)_authenticator).addBasicCredentials(new BasicCredential(proxy.host, userNameParts[0], userNameParts[1], proxyCredentialsPassword));
+                ((CredentialManager)_authenticator).addDigestCredentials(new DigestCredential(proxy.host, userNameParts[0], userNameParts[1], proxyCredentialsPassword));
+            }
+        }
+    }
+
     public void setSSLContextManager(SSLContextManager sslContextManager) {
         _sslContextManager = sslContextManager;
     }
@@ -203,6 +244,8 @@ public class URLFetcher implements HTTPClient {
             _logger.severe("Asked to fetch a request with a null URL");
             return null;
         }
+
+        checkPacProxy(url.toString());
 
         // if the previous auth method was not "Basic", force a new connection
         // we try to keep previous auth header so on basic we send it on first request
@@ -464,9 +507,11 @@ public class URLFetcher implements HTTPClient {
         _port = url.getPort();
         boolean ssl = url.getScheme().equalsIgnoreCase("https");
 
+        checkPacProxy(url.toString());
+
         if (useProxy(url)) {
             if (!ssl) {
-                _logger.fine("Connect to " + _httpProxy + ":" + _httpProxyPort);
+                //Log.d("proxy", "Connect to " + _httpProxy + ":" + _httpProxyPort);
                 _socket.connect(getSocketAddress(_httpProxy, _httpProxyPort), _connectTimeout);
                 _in = _socket.getInputStream();
                 _out = _socket.getOutputStream();
