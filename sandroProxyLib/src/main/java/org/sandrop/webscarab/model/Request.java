@@ -100,7 +100,7 @@ public class Request extends Message {
         _logger.finer("Base: " + base);
         try {
             line = readLine(is);
-            _logger.finest("Request: " + line);
+            _logger.finest(line);
         } catch (SocketTimeoutException ste) {
             // System.err.println("Read timed out. Closing connection");
             return;

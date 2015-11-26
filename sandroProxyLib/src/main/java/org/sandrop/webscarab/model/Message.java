@@ -32,9 +32,11 @@
 
 package org.sandrop.webscarab.model;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -121,7 +123,7 @@ public class Message {
         String line = null;
         do {
             line=readLine(is);
-            _logger.finer("Header: " + line);
+            _logger.finer(line);
             if (line.startsWith(" ")) {
                 if (previous == null) {
                     _logger.severe("Got a continuation header but had no previous header line");
@@ -287,10 +289,14 @@ public class Message {
      */
     public void write(OutputStream os, String crlf) throws IOException {
         if (_headers != null) {
+            StringBuilder sb = new StringBuilder(256);
             for (int i=0; i<_headers.size(); i++) {
+                sb.setLength(0);
                 NamedValue nv = _headers.get(i);
-                os.write(new String(nv.getName() + ": " + nv.getValue() + crlf).getBytes());
-                _logger.finest("Header: " + nv);
+                sb.append(nv.getName()).append(": ").append(nv.getValue()).append(crlf);
+                String header = sb.toString();
+                os.write(header.getBytes());
+                _logger.finest(header);
             }
         }
         os.write(crlf.getBytes());
@@ -559,7 +565,7 @@ public class Message {
     
     /**
      * sets the headers
-     * @param table a two dimensional array of Strings, where table[i][0] is the header name and
+     * @param headers a two dimensional array of Strings, where table[i][0] is the header name and
      * table[i][1] is the header value
      */
     public void setHeaders(NamedValue[] headers) {
@@ -588,7 +594,7 @@ public class Message {
             npe.printStackTrace();
             throw npe;
         }
-        StringBuffer line = new StringBuffer();
+        StringBuffer line = new StringBuffer(256);
         int i;
         char c=0x00;
         i = is.read();
@@ -602,8 +608,9 @@ public class Message {
         if (i == 13) { // 10 is unix LF, but DOS does 13+10, so read the 10 if we got 13
             i = is.read();
         }
-        _logger.finest(line.toString());
-        return line.toString();
+        String ret = line.toString();
+        _logger.finest(ret);
+        return ret;
     }
     
     /**
@@ -733,7 +740,7 @@ public class Message {
         if (_contentStream == null) return;
         _content = new MessageOutputStream();
         byte[] buf = new byte[4096];
-        _logger.finest("Reading initial bytes from contentStream " + _contentStream);
+        //_logger.finest("Reading initial bytes from contentStream " + _contentStream);
         
         int got = _contentStream.read(buf);
         int sum = got; 
@@ -754,7 +761,7 @@ public class Message {
                 if (LOGD) Log.d(TAG, "output Stream is null");
             }
             got = _contentStream.read(buf);
-            _logger.finest("Got " + got + " bytes");
+            //_logger.finest("Got " + got + " bytes");
         }
         _content.flush();
         _contentStream = null;
