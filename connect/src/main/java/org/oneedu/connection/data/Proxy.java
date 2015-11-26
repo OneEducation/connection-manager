@@ -12,11 +12,20 @@ public class Proxy {
     private String username;
     private String password;
     private int status;
+    private String pac_url;
 
     public Proxy(String ssid, String host, int port, String username, String password) {
         this.ssid = ssid;
         this.host = host;
         this.port = port;
+        this.username = username;
+        this.password = password;
+        this.status = 0;
+    }
+
+    public Proxy(String ssid, String pac_url, String username, String password) {
+        this.ssid = ssid;
+        this.pac_url = pac_url;
         this.username = username;
         this.password = password;
         this.status = 0;
@@ -29,6 +38,7 @@ public class Proxy {
         this.username = cursor.getString(3);
         this.password = cursor.getString(4);
         this.status = cursor.getInt(5);
+        this.pac_url = cursor.getString(6);
     }
 
     public String getSsid() {
@@ -53,6 +63,10 @@ public class Proxy {
 
     public int getStatus() {
         return status;
+    }
+
+    public String getPacUrl() {
+        return pac_url;
     }
 
     public String toString() {

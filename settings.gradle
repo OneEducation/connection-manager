@@ -1,1 +1,1 @@
-include ':sandroProxyLib', ':connect', ':uikit', ':android_wifi_library'
+include ':sandroProxyLib', ':connect', ':uikit', ':android_wifi_library', ':aFileChooser'

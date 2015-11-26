@@ -42,6 +42,7 @@ dependencies {
     compile project(':android_wifi_library')
     compile project(':uikit')
     compile project(':sandroProxyLib')
+    compile project(':aFileChooser')
     compile 'pl.tajchert:waitingdots:0.1.0'
     compile 'com.github.markushi:android-ui:1.2'
 }

@@ -1,18 +1,25 @@
 package org.oneedu.connection.fragments;
 
+import android.app.Activity;
 import android.app.Fragment;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.ipaulpro.afilechooser.utils.FileUtils;
 import com.rengwuxian.materialedittext.MaterialEditText;
 
 import org.oneedu.connection.R;
@@ -40,6 +47,8 @@ public class WifiDialogFragment extends Fragment implements WifiConfigUiBase {
     public View mRootView;
     private int mLeftDelta;
     private int mTopDelta;
+
+    private final int RESULT_SEARCH_PAC_FILE = 111;
 
     @Nullable
     @Override
@@ -275,5 +284,22 @@ public class WifiDialogFragment extends Fragment implements WifiConfigUiBase {
 
         MaterialEditText anonymous = (MaterialEditText)mView.findViewById(R.id.anonymous);
         anonymous.setError(id == 0 ? null : getString(id));
+    }
+
+    @Override
+    public void startPacFileSearch() {
+        Intent intent = new Intent();
+        intent.setComponent(new ComponentName("org.oneedu.connection", "com.ipaulpro.afilechooser.FileChooserActivity"));
+        startActivityForResult(intent, RESULT_SEARCH_PAC_FILE);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == RESULT_SEARCH_PAC_FILE && resultCode == Activity.RESULT_OK) {
+            final Uri uri = data.getData();
+            ((EditText)mView.findViewById(R.id.proxy_pac)).setText("file://" + uri.getPath());
+        }
     }
 }

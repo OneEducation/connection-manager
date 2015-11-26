@@ -48,4 +48,6 @@ public interface WifiConfigUiBase {
     void setPasswordError(int id);
     void setProxyHostError(int id);
     void setProxyPortError(int id);
+
+    void startPacFileSearch();
 }
