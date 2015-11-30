@@ -58,6 +58,7 @@ import java.util.zip.InflaterOutputStream;
 import org.sandrop.webscarab.httpclient.ChunkedInputStream;
 import org.sandrop.webscarab.httpclient.ChunkedOutputStream;
 import org.sandrop.webscarab.httpclient.FixedLengthInputStream;
+import org.sandroproxy.constants.Constants;
 
 import android.util.Log;
 
@@ -86,6 +87,8 @@ public class Message {
     private boolean _deflate = false;
     private int _length = -1;
     protected Logger _logger = Logger.getLogger(this.getClass().getName());
+
+    private StringBuffer sb_readline = new StringBuffer(256);
     
     /** Message is a class that is used to represent the bulk of an HTTP message, namely
      * the headers, and (possibly null) body. Messages should not be instantiated
@@ -289,15 +292,13 @@ public class Message {
      */
     public void write(OutputStream os, String crlf) throws IOException {
         if (_headers != null) {
-            StringBuilder sb = new StringBuilder(256);
-            for (int i=0; i<_headers.size(); i++) {
-                sb.setLength(0);
-                NamedValue nv = _headers.get(i);
+            StringBuilder sb = new StringBuilder(Constants.DEFAULT_BUFFER_SIZE);
+            for (NamedValue nv : _headers) {
                 sb.append(nv.getName()).append(": ").append(nv.getValue()).append(crlf);
-                String header = sb.toString();
-                os.write(header.getBytes());
-                _logger.finest(header);
             }
+            String header = sb.toString();
+            os.write(header.getBytes());
+            _logger.finest(header);
         }
         os.write(crlf.getBytes());
         _logger.finer("wrote headers");
@@ -594,7 +595,8 @@ public class Message {
             npe.printStackTrace();
             throw npe;
         }
-        StringBuffer line = new StringBuffer(256);
+        //StringBuffer line = new StringBuffer(256);
+        sb_readline.setLength(0);
         int i;
         char c=0x00;
         i = is.read();
@@ -602,13 +604,13 @@ public class Message {
         while (i > -1 && i != 10 && i != 13) {
             // Convert the int to a char
             c = (char)(i & 0xFF);
-            line = line.append(c);
+            sb_readline.append(c);
             i = is.read();
         }
         if (i == 13) { // 10 is unix LF, but DOS does 13+10, so read the 10 if we got 13
             i = is.read();
         }
-        String ret = line.toString();
+        String ret = sb_readline.toString();
         _logger.finest(ret);
         return ret;
     }

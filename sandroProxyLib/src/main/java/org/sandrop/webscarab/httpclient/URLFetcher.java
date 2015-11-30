@@ -364,17 +364,15 @@ public class URLFetcher implements HTTPClient {
                 status = _response.getStatus();
             } while (status.equals("100"));
 
-            {
-                StringBuffer buff = new StringBuffer(Constants.DEFAULT_BUFFER_SIZE);
+            if (org.sandroproxy.logger.Logger.isEnable()) {
+                StringBuilder buff = new StringBuilder(Constants.DEFAULT_BUFFER_SIZE);
                 buff.append(_response.getStatusLine()).append("\n");
                 NamedValue[] headers = _response.getHeaders();
                 if (headers != null)
-                    for (int i = 0; i < headers.length; i++)
-                        buff.append(headers[i].getName()).append(": ").append(headers[i].getValue()).append("\n");
+                    for (NamedValue header : headers)
+                        buff.append(header.getName()).append(": ").append(header.getValue()).append("\n");
 
-                if (org.sandroproxy.logger.Logger.isEnable()) {
-                    _logger.finest("Response:\n" + buff.toString());
-                }
+                _logger.finest("Response:\n" + buff.toString());
             }
 
             if (status.equals("407")) {
@@ -560,7 +558,10 @@ public class URLFetcher implements HTTPClient {
                     _logger.fine("Sent CONNECT, reading Proxy response");
                     Response response = new Response();
                     response.read(_in);
-                    _logger.fine("Got proxy response " + response.getStatusLine());
+                    if (org.sandroproxy.logger.Logger.isEnable()) {
+                        _logger.fine("Got proxy response " + response.getStatusLine());
+                    }
+
                     status = response.getStatus();
                     if (status.equals("407")) {
                         response.flushContentStream();

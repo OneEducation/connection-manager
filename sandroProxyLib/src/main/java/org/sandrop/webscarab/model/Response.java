@@ -186,7 +186,7 @@ public class Response extends Message {
      */    
     public void write(OutputStream os, String crlf) throws IOException {
         os = new BufferedOutputStream(os);
-        os.write(new String(version + " " + getStatusLine() + crlf).getBytes());
+        os.write((version + " " + getStatusLine() + crlf).getBytes());
         super.write(os,crlf);
         os.flush();
     }
