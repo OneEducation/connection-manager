@@ -32,9 +32,11 @@
 
 package org.sandrop.webscarab.model;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,6 +58,7 @@ import java.util.zip.InflaterOutputStream;
 import org.sandrop.webscarab.httpclient.ChunkedInputStream;
 import org.sandrop.webscarab.httpclient.ChunkedOutputStream;
 import org.sandrop.webscarab.httpclient.FixedLengthInputStream;
+import org.sandroproxy.constants.Constants;
 
 import android.util.Log;
 
@@ -84,6 +87,8 @@ public class Message {
     private boolean _deflate = false;
     private int _length = -1;
     protected Logger _logger = Logger.getLogger(this.getClass().getName());
+
+    private StringBuffer sb_readline = new StringBuffer(256);
     
     /** Message is a class that is used to represent the bulk of an HTTP message, namely
      * the headers, and (possibly null) body. Messages should not be instantiated
@@ -121,7 +126,7 @@ public class Message {
         String line = null;
         do {
             line=readLine(is);
-            _logger.finer("Header: " + line);
+            _logger.finer(line);
             if (line.startsWith(" ")) {
                 if (previous == null) {
                     _logger.severe("Got a continuation header but had no previous header line");
@@ -287,11 +292,13 @@ public class Message {
      */
     public void write(OutputStream os, String crlf) throws IOException {
         if (_headers != null) {
-            for (int i=0; i<_headers.size(); i++) {
-                NamedValue nv = _headers.get(i);
-                os.write(new String(nv.getName() + ": " + nv.getValue() + crlf).getBytes());
-                _logger.finest("Header: " + nv);
+            StringBuilder sb = new StringBuilder(Constants.DEFAULT_BUFFER_SIZE);
+            for (NamedValue nv : _headers) {
+                sb.append(nv.getName()).append(": ").append(nv.getValue()).append(crlf);
             }
+            String header = sb.toString();
+            os.write(header.getBytes());
+            _logger.finest(header);
         }
         os.write(crlf.getBytes());
         _logger.finer("wrote headers");
@@ -559,7 +566,7 @@ public class Message {
     
     /**
      * sets the headers
-     * @param table a two dimensional array of Strings, where table[i][0] is the header name and
+     * @param headers a two dimensional array of Strings, where table[i][0] is the header name and
      * table[i][1] is the header value
      */
     public void setHeaders(NamedValue[] headers) {
@@ -588,7 +595,8 @@ public class Message {
             npe.printStackTrace();
             throw npe;
         }
-        StringBuffer line = new StringBuffer();
+        //StringBuffer line = new StringBuffer(256);
+        sb_readline.setLength(0);
         int i;
         char c=0x00;
         i = is.read();
@@ -596,14 +604,15 @@ public class Message {
         while (i > -1 && i != 10 && i != 13) {
             // Convert the int to a char
             c = (char)(i & 0xFF);
-            line = line.append(c);
+            sb_readline.append(c);
             i = is.read();
         }
         if (i == 13) { // 10 is unix LF, but DOS does 13+10, so read the 10 if we got 13
             i = is.read();
         }
-        _logger.finest(line.toString());
-        return line.toString();
+        String ret = sb_readline.toString();
+        _logger.finest(ret);
+        return ret;
     }
     
     /**
@@ -733,7 +742,7 @@ public class Message {
         if (_contentStream == null) return;
         _content = new MessageOutputStream();
         byte[] buf = new byte[4096];
-        _logger.finest("Reading initial bytes from contentStream " + _contentStream);
+        //_logger.finest("Reading initial bytes from contentStream " + _contentStream);
         
         int got = _contentStream.read(buf);
         int sum = got; 
@@ -754,7 +763,7 @@ public class Message {
                 if (LOGD) Log.d(TAG, "output Stream is null");
             }
             got = _contentStream.read(buf);
-            _logger.finest("Got " + got + " bytes");
+            //_logger.finest("Got " + got + " bytes");
         }
         _content.flush();
         _contentStream = null;

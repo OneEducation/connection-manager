@@ -46,6 +46,12 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name="com.ipaulpro.afilechooser.FileChooserActivity"
+            android:icon="@drawable/ic_chooser"
+            android:enabled="@bool/use_activity"
+            android:label="@string/choose_file" />
+
         <receiver android:name=".receivers.PackageReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>

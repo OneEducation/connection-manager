@@ -53,10 +53,14 @@ import org.sandrop.webscarab.model.HttpUrl;
 import org.sandrop.webscarab.model.Request;
 import org.sandrop.webscarab.model.Response;
 import org.sandroproxy.utils.PreferenceUtils;
+import org.sandroproxy.utils.pac.PacProxySelector;
+import org.sandroproxy.utils.pac.PacScriptSource;
+import org.sandroproxy.utils.pac.UrlPacScriptSource;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 /**
  *
@@ -73,6 +77,8 @@ public class HTTPClientFactory {
     private String _httpsProxy = "";
     private int _httpsProxyPort = 80;
     private String[] _noProxy = new String[0];
+
+    private PacProxySelector _pacProxySelector;
     
     private String _localDomainName = null;
     
@@ -209,11 +215,21 @@ public class HTTPClientFactory {
     public Authenticator getAuthenticator() {
         return _authenticator;
     }
-    
+
+    public void setPacProxy(String scriptUrl) {
+        Log.d("PAC", "script: " + scriptUrl);
+        if (scriptUrl == null || scriptUrl.length() == 0) {
+            _pacProxySelector = null;
+        } else {
+            _pacProxySelector = new PacProxySelector(new UrlPacScriptSource(scriptUrl));
+        }
+    }
+
     public HTTPClient getHTTPClient() {
         URLFetcher uf = new URLFetcher();
         uf.setHttpProxy(_httpProxy, _httpProxyPort);
         uf.setHttpsProxy(_httpsProxy, _httpsProxyPort);
+        uf.setPacProxy(_pacProxySelector);
         uf.setNoProxy(_noProxy);
         uf.setSSLContextManager(_sslContextManager);
         uf.setLocalDomainName(_localDomainName);
@@ -226,6 +242,7 @@ public class HTTPClientFactory {
         URLFetcher uf = new URLFetcher();
         uf.setHttpProxy(_httpProxy, _httpProxyPort);
         uf.setHttpsProxy(_httpsProxy, _httpsProxyPort);
+        uf.setPacProxy(_pacProxySelector);
         uf.setNoProxy(_noProxy);
         uf.setSSLContextManager(_sslContextManager);
         uf.setLocalDomainName(_localDomainName);
@@ -238,6 +255,7 @@ public class HTTPClientFactory {
         URLFetcher uf = new URLFetcher();
         uf.setHttpProxy(_httpProxy, _httpProxyPort);
         uf.setHttpsProxy(_httpsProxy, _httpsProxyPort);
+        uf.setPacProxy(_pacProxySelector);
         uf.setNoProxy(_noProxy);
         uf.setSSLContextManager(_sslContextManager);
         uf.setLocalDomainName(_localDomainName);

@@ -71,6 +71,7 @@ public class WifiDialogController implements TextWatcher,
     private final WifiConfigUiBase mConfigUi;
     private final View mView;
     private final AccessPoint mAccessPoint;
+    private final CompoundButton mUsePacSB;
 
     private boolean mEdit;
 
@@ -152,6 +153,7 @@ public class WifiDialogController implements TextWatcher,
         mConfigUi = parent;
 
         mView = view;
+
         mAccessPoint = accessPoint;
         mAccessPointSecurity = (accessPoint == null) ? AccessPoint.SECURITY_NONE :
                 accessPoint.security;
@@ -185,10 +187,25 @@ public class WifiDialogController implements TextWatcher,
                 View focusView = showProxyFields();
                 enableSubmitIfAppropriate();
 
-                if (compoundButton.getTag() != null && (Boolean)compoundButton.getTag() == b) {
+                if (compoundButton.getTag() != null && (Boolean) compoundButton.getTag() == b) {
                     compoundButton.setTag(null);
                 } else if (focusView != null) {
                     focusView.requestFocus();
+                }
+            }
+        });
+
+        mView.findViewById(R.id.search_pac_file).setOnClickListener(this);
+        mUsePacSB = (CompoundButton)mView.findViewById(R.id.use_pac);
+        mUsePacSB.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    mView.findViewById(R.id.l_proxy_host_port).setVisibility(View.GONE);
+                    mView.findViewById(R.id.l_proxy_pac).setVisibility(View.VISIBLE);
+                } else {
+                    mView.findViewById(R.id.l_proxy_host_port).setVisibility(View.VISIBLE);
+                    mView.findViewById(R.id.l_proxy_pac).setVisibility(View.GONE);
                 }
             }
         });
@@ -431,10 +448,7 @@ public class WifiDialogController implements TextWatcher,
                 return null;
         }
 
-//        config.proxySettings = mProxySettings;
-//        config.ipAssignment = mIpAssignment;
-//        config.linkProperties = new LinkProperties(mLinkProperties);
-        Wifi.getWifiConfigurationHelper().setIpProxy(config, mJsonConfig);
+        //Wifi.getWifiConfigurationHelper().setIpConfig(config, mJsonConfig); // not support ipconfig from UI for now
 
         return config;
     }
@@ -458,28 +472,20 @@ public class WifiDialogController implements TextWatcher,
             }
         }
 
-//        mProxySettings = (mProxySettingsSpinner != null &&
-//                mProxySettingsSpinner.getSelectedItemPosition() == PROXY_STATIC) ?
-//                ProxySettings.STATIC : ProxySettings.NONE;
+        boolean proxyEnabled = mProxySB.isChecked();
 
-        ProxySettings proxySettings = mProxySB.isChecked() && mProxyHostView.getText().length() > 0 ? ProxySettings.STATIC : ProxySettings.NONE;
+        if (proxyEnabled) {
+            if (isUsePac()) {
+                return getPacURL().length() > 0 && getPacURL().startsWith("file://");   // only support local file for now
+            } else if (mProxyHostView.getText().length() > 0) {
+                String host = mProxyHostView.getText().toString();
+                String portStr = mProxyPortView.getText().toString();
+                String exclusionList = mProxyExclusionListView.getText().toString();
+                int result = validate(host, portStr, exclusionList);
 
-        if (proxySettings == ProxySettings.STATIC && mProxyHostView != null) {
-            String host = mProxyHostView.getText().toString();
-            String portStr = mProxyPortView.getText().toString();
-            String exclusionList = mProxyExclusionListView.getText().toString();
-            int result = validate(host, portStr, exclusionList);
-
-            if (result == 0) {
-                try {
-                    mJsonConfig.put("proxy_host", host);
-                    mJsonConfig.put("proxy_port", portStr);
-                    mJsonConfig.put("exclusion_list", exclusionList);
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                if (result != 0) {
+                    return false;
                 }
-            } else {
-                return false;
             }
         }
         return true;
@@ -748,13 +754,12 @@ public class WifiDialogController implements TextWatcher,
     private void showEapFieldsByMethod(int eapMethod) {
         // Common defaults
         mView.findViewById(R.id.l_method).setVisibility(View.VISIBLE);
-        mView.findViewById(R.id.l_identity).setVisibility(View.VISIBLE);
+        mView.findViewById(R.id.identity).setVisibility(View.VISIBLE);
 
         // Defaults for most of the EAP methods and over-riden by
         // by certain EAP methods
         mView.findViewById(R.id.l_ca_cert).setVisibility(View.VISIBLE);
         mView.findViewById(R.id.password_layout).setVisibility(View.VISIBLE);
-        mView.findViewById(R.id.show_password_layout).setVisibility(View.VISIBLE);
 
         Context context = mConfigUi.getContext();
         switch (eapMethod) {
@@ -777,7 +782,7 @@ public class WifiDialogController implements TextWatcher,
                     mPhase2Spinner.setAdapter(mPhase2Adapter);
                 }
                 mView.findViewById(R.id.l_phase2).setVisibility(View.VISIBLE);
-                mView.findViewById(R.id.l_anonymous).setVisibility(View.VISIBLE);
+                mView.findViewById(R.id.anonymous).setVisibility(View.VISIBLE);
                 setUserCertInvisible();
                 break;
             case WIFI_EAP_METHOD_TTLS:
@@ -787,7 +792,7 @@ public class WifiDialogController implements TextWatcher,
                     mPhase2Spinner.setAdapter(mPhase2Adapter);
                 }
                 mView.findViewById(R.id.l_phase2).setVisibility(View.VISIBLE);
-                mView.findViewById(R.id.l_anonymous).setVisibility(View.VISIBLE);
+                mView.findViewById(R.id.anonymous).setVisibility(View.VISIBLE);
                 setUserCertInvisible();
                 break;
         }
@@ -809,14 +814,13 @@ public class WifiDialogController implements TextWatcher,
     }
 
     private void setAnonymousIdentInvisible() {
-        mView.findViewById(R.id.l_anonymous).setVisibility(View.GONE);
+        mView.findViewById(R.id.anonymous).setVisibility(View.GONE);
         mEapAnonymousView.setText("");
     }
 
     private void setPasswordInvisible() {
         mPasswordView.setText("");
         mView.findViewById(R.id.password_layout).setVisibility(View.GONE);
-        mView.findViewById(R.id.show_password_layout).setVisibility(View.GONE);
     }
 
 //    private View showIpConfigFields() {
@@ -913,15 +917,21 @@ public class WifiDialogController implements TextWatcher,
             }
             if (config != null) {
                 String[] proxy = Wifi.getWifiConfigurationHelper().getProxyFields(config);
-                if (proxy != null) {
+                if (mProxy == null && proxy != null) {
                     mProxyHostView.setText(proxy[0]);
                     mProxyPortView.setText(proxy[1]);
                     mProxyExclusionListView.setText(proxy[2]);
                 }
 
                 if (mProxy != null) {
-                    mProxyHostView.setText(mProxy.getHost());
-                    mProxyPortView.setText(Integer.toString(mProxy.getPort()));
+                    String pacUrl = mProxy.getPacUrl();
+                    if (pacUrl != null && pacUrl.length() > 0) {
+                        setPacURL(pacUrl);
+                    } else if (mProxy.getHost().length() > 0) {
+                        mProxyHostView.setText(mProxy.getHost());
+                        mProxyPortView.setText(Integer.toString(mProxy.getPort()));
+                    }
+
                     mProxyUsername.setText(mProxy.getUsername());
 
                     if (mAccessPoint != null && mAccessPoint.networkId != INVALID_NETWORK_ID) {
@@ -1015,37 +1025,45 @@ public class WifiDialogController implements TextWatcher,
 
     @Override
     public void onClick(View view) {
-        if (view.getId() == R.id.wifi_advanced_togglebox) {
+        switch (view.getId()) {
+            case R.id.search_pac_file:
+                mConfigUi.startPacFileSearch();
+                break;
 
-            if (((CheckBox) view).isChecked()) {
-                final View advancedFields = mView.findViewById(R.id.wifi_advanced_fields);
-                advancedFields.setVisibility(View.VISIBLE);
-
-                advancedFields.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        //if (mProxySettingsSpinner.getSelectedItemPosition() == PROXY_NONE &&
-                        if (!mProxySB.isChecked() &&
-                                mIpSettingsSpinner.getSelectedItemPosition() == DHCP) {
-
-                            // Hack for prevent auto-scroll to edittext on top
-                            ((ScrollView) mView).setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
-                            ((ScrollView) mView).pageScroll(View.FOCUS_DOWN);
-                            mView.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    ((ScrollView) mView).setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
-                                }
-                            });
-                        } else {
-                            advancedFields.requestFocus();
-                        }
-                    }
-                });
-            } else {
-                mView.findViewById(R.id.wifi_advanced_fields).setVisibility(View.GONE);
-            }
+            default:
+                break;
         }
+//        if (view.getId() == R.id.wifi_advanced_togglebox) {
+//
+//            if (((CheckBox) view).isChecked()) {
+//                final View advancedFields = mView.findViewById(R.id.wifi_advanced_fields);
+//                advancedFields.setVisibility(View.VISIBLE);
+//
+//                advancedFields.post(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        //if (mProxySettingsSpinner.getSelectedItemPosition() == PROXY_NONE &&
+//                        if (!mProxySB.isChecked() &&
+//                                mIpSettingsSpinner.getSelectedItemPosition() == DHCP) {
+//
+//                            // Hack for prevent auto-scroll to edittext on top
+//                            ((ScrollView) mView).setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+//                            ((ScrollView) mView).pageScroll(View.FOCUS_DOWN);
+//                            mView.post(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    ((ScrollView) mView).setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
+//                                }
+//                            });
+//                        } else {
+//                            advancedFields.requestFocus();
+//                        }
+//                    }
+//                });
+//            } else {
+//                mView.findViewById(R.id.wifi_advanced_fields).setVisibility(View.GONE);
+//            }
+//        }
     }
 
 
@@ -1092,6 +1110,14 @@ public class WifiDialogController implements TextWatcher,
         }
     }
 
+    public String getProxyHost() {
+        return mProxyHostView.getText().toString();
+    }
+
+    public String getProxyPort() {
+        return mProxyPortView.getText().toString();
+    }
+
     public String getProxyUsername() {
         return mProxyUsername.getText().toString();
     }
@@ -1102,6 +1128,27 @@ public class WifiDialogController implements TextWatcher,
         } else {
             return mProxy.getPassword();
         }
+    }
+
+    public boolean isProxyEnabled() {
+        return mProxySB.isChecked();
+    }
+
+    public boolean isUsePac() {
+        return mUsePacSB.isChecked();
+    }
+
+    public String getPacURL() {
+        if (isProxyEnabled() && isUsePac()) {
+            return ((EditText) mView.findViewById(R.id.proxy_pac)).getText().toString();
+        } else {
+            return null;
+        }
+    }
+
+    public void setPacURL(String url) {
+        mUsePacSB.setChecked(true);
+        ((EditText) mView.findViewById(R.id.proxy_pac)).setText(url);
     }
 
     @Override

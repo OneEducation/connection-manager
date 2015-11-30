@@ -67,6 +67,7 @@ public class PreferenceUtils {
     public static String chainProxyExcludeList = "preference_chain_proxy_no_proxy_list";
     public static String chainProxyUsername = "preference_chain_proxy_username";
     public static String chainProxyPassword = "preference_chain_proxy_password";
+    public static String chainProxyPacUrl = "preference_chain_proxy_pac_url";
     
     public static String localDomainName = "preference_local_domain_name";
 

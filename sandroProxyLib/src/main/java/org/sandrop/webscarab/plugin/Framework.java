@@ -532,17 +532,11 @@ public class Framework {
 
             if (value == null || value.equals("")) value = ":3128";
             colon = value.indexOf(":");
-            factory.setHttpProxy(value.substring(0,colon), Integer.parseInt(value.substring(colon+1).trim()));
+            factory.setHttpProxy(value.substring(0, colon), Integer.parseInt(value.substring(colon + 1).trim()));
 
             String domainName = Preferences.getPreference(PreferenceUtils.localDomainName, null);
             factory.setLocalDomainName(domainName);
 
-            if (value == null || value.equals("")) value = ":3128";
-            colon = value.indexOf(":");
-            factory.setHttpProxy(value.substring(0,colon), Integer.parseInt(value.substring(colon+1).trim()));
-            
-            
-            
             value = null;
             if (Preferences.getPreferenceBoolean(PreferenceUtils.chainProxyEnabled, false)){
                 value = Preferences.getPreference(PreferenceUtils.chainProxyHttps);
@@ -557,7 +551,14 @@ public class Framework {
             }
             if (value == null) value = "";
             factory.setNoProxy(value.split(" *, *"));
-            
+
+            if (Preferences.getPreferenceBoolean(PreferenceUtils.chainProxyEnabled, false)){
+                String pacUrl = Preferences.getPreference(PreferenceUtils.chainProxyPacUrl);
+                factory.setPacProxy(pacUrl);    // do not check null/length
+            } else {
+                factory.setPacProxy(null);
+            }
+
             int connectTimeout = 30000;
             prop = "HttpClient.connectTimeout";
             value = Preferences.getPreference(prop,"");

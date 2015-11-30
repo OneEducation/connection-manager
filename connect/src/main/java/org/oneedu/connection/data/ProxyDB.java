@@ -21,7 +21,8 @@ public class ProxyDB {
             ProxyDBHelper.COLUMN_PORT,
             ProxyDBHelper.COLUMN_USERNAME,
             ProxyDBHelper.COLUMN_PASSWORD,
-            ProxyDBHelper.COLUMN_STATUS
+            ProxyDBHelper.COLUMN_STATUS,
+            ProxyDBHelper.COLUMN_PAC_URL
     };
     private static ProxyDB mInstance;
 
@@ -54,10 +55,24 @@ public class ProxyDB {
         values.put(ProxyDBHelper.COLUMN_SSID, ssid);
         values.put(ProxyDBHelper.COLUMN_HOST, host);
         values.put(ProxyDBHelper.COLUMN_PORT, port);
+        values.put(ProxyDBHelper.COLUMN_PAC_URL, "");
         values.put(ProxyDBHelper.COLUMN_USERNAME, username);
         values.put(ProxyDBHelper.COLUMN_PASSWORD, password);
         values.put(ProxyDBHelper.COLUMN_STATUS, 0);
         
+        database.insertWithOnConflict(ProxyDBHelper.TABLE_PROXIES, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+    }
+
+    public void addOrUpdateProxy(String ssid, String pac_url, String username, String password) {
+        ContentValues values = new ContentValues();
+        values.put(ProxyDBHelper.COLUMN_SSID, ssid);
+        values.put(ProxyDBHelper.COLUMN_HOST, "");
+        values.put(ProxyDBHelper.COLUMN_PORT, "");
+        values.put(ProxyDBHelper.COLUMN_PAC_URL, pac_url);
+        values.put(ProxyDBHelper.COLUMN_USERNAME, username);
+        values.put(ProxyDBHelper.COLUMN_PASSWORD, password);
+        values.put(ProxyDBHelper.COLUMN_STATUS, 0);
+
         database.insertWithOnConflict(ProxyDBHelper.TABLE_PROXIES, null, values, SQLiteDatabase.CONFLICT_REPLACE);
     }
 

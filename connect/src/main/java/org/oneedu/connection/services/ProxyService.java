@@ -9,6 +9,7 @@ import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Binder;
+import android.os.Environment;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -131,19 +132,28 @@ public class ProxyService extends Service {
         WifiConfiguration config = controller.getConfig();
         String ssid = config.SSID;
 
-        if (Wifi.getWifiConfigurationHelper().getProxySettings(config) == ProxySettings.STATIC
-                && controller.getProxyUsername().length() > 0
-                && controller.getProxyPassword().length() > 0) {
+        if (controller.isProxyEnabled()) {
 
-            String[] proxy = Wifi.getWifiConfigurationHelper().getProxyFields(config);
-            String username = controller.getProxyUsername();
-            String password = controller.getProxyPassword();
-            proxyDB.addOrUpdateProxy(ssid, proxy[0], Integer.parseInt(proxy[1]), username, password);
+            if (controller.isUsePac()) {
+                proxyDB.addOrUpdateProxy(ssid, controller.getPacURL(), controller.getProxyUsername(), controller.getProxyPassword());
+                Wifi.getWifiConfigurationHelper().setProxyFields(config, "localhost", "9008", "");
+                return config;
+            } else if (controller.getProxyHost().length() > 0) {
 
-            Wifi.getWifiConfigurationHelper().setProxyFields(config, "localhost", "9008", "");
-        } else {
-            proxyDB.deleteProxy(ssid);
+                String username = controller.getProxyUsername();
+                String password = controller.getProxyPassword();
+
+                if (username.length() > 0 && password.length() > 0) {
+                    proxyDB.addOrUpdateProxy(ssid, controller.getProxyHost(), Integer.parseInt(controller.getProxyPort()), username, password);
+                    Wifi.getWifiConfigurationHelper().setProxyFields(config, "localhost", "9008", "");
+                    return config;
+                } else {
+                    Wifi.getWifiConfigurationHelper().setProxyFields(config, controller.getProxyHost(), controller.getProxyPort(), "");
+                }
+            }
         }
+
+        proxyDB.deleteProxy(ssid);
 
         return config;
     }
@@ -155,17 +165,19 @@ public class ProxyService extends Service {
         }
 
         if (!proxyStarted && proxy != null) {
-            if (proxy != null) {
-                String host = proxy.getHost();
-                int port = proxy.getPort();
-                String username = proxy.getUsername();
-                String password = proxy.getPassword();
+            String host = proxy.getHost();
+            int port = proxy.getPort();
+            String username = proxy.getUsername();
+            String password = proxy.getPassword();
+            String pacUrl = proxy.getPacUrl();
 
-                Preferences.setPreference(PreferenceUtils.chainProxyUsername, "\\" + username);
-                Preferences.setPreference(PreferenceUtils.chainProxyPassword, password);
-                Preferences.setPreference(PreferenceUtils.chainProxyHttp, host + ":" + port);
-                Preferences.setPreference(PreferenceUtils.chainProxyHttps, host + ":" + port);
-            }
+            boolean usePac = pacUrl != null && pacUrl.length() > 0;
+
+            Preferences.setPreference(PreferenceUtils.chainProxyUsername, "\\" + username);
+            Preferences.setPreference(PreferenceUtils.chainProxyPassword, password);
+            Preferences.setPreference(PreferenceUtils.chainProxyHttp, usePac ? "" : host + ":" + port);
+            Preferences.setPreference(PreferenceUtils.chainProxyHttps, usePac ? "" : host + ":" + port);
+            Preferences.setPreference(PreferenceUtils.chainProxyPacUrl, pacUrl);
 
             // start
             Thread thread = new Thread()

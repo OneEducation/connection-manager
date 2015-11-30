@@ -42,9 +42,9 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginTop">8dip</item>
+        <item name="android:layout_marginBottom">8dip</item>
         <item name="android:layout_marginStart">16dip</item>
         <item name="android:layout_marginEnd">16dip</item>
-        <item name="android:layout_marginBottom">8dip</item>
         <item name="android:orientation">vertical</item>
         <item name="android:gravity">start</item>
     </style>
@@ -63,9 +63,18 @@
         <item name="android:textAlignment">viewStart</item>
     </style>
 
+    <style name="wifi_item_edit_content_sub" parent="wifi_item_content">
+        <item name="android:layout_marginBottom">8dip</item>
+        <item name="android:layout_marginStart">16dip</item>
+        <item name="android:layout_marginEnd">16dip</item>
+    </style>
     <style name="wifi_item_edit_content">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">8dip</item>
+        <item name="android:layout_marginBottom">8dip</item>
+        <item name="android:layout_marginStart">16dip</item>
+        <item name="android:layout_marginEnd">16dip</item>
         <item name="android:textSize">18sp</item>
         <item name="met_primaryColor">@color/oneEduBlue</item>
         <item name="met_floatingLabel">highlight</item>
