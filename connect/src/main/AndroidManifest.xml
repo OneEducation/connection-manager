@@ -49,7 +49,6 @@
         <activity
             android:name="com.ipaulpro.afilechooser.FileChooserActivity"
             android:icon="@drawable/ic_chooser"
-            android:enabled="@bool/use_activity"
             android:label="@string/choose_file" />
 
         <receiver android:name=".receivers.PackageReceiver">

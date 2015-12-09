@@ -1,6 +1,10 @@
 package org.oneedu.connection.controllers;
 
 import android.app.Fragment;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
@@ -8,12 +12,14 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
 import org.oneedu.connection.R;
 import org.oneedu.connection.fragments.WifiConnectingFragment;
+import org.oneedu.connection.services.ProxyService;
 import org.oneedu.connection.views.AccessPointTitleLayout;
 import org.oneedu.connection.data.AccessPoint;
 import org.oneedu.connection.data.ProxyDB;
@@ -40,6 +46,21 @@ public class WifiConnectingController {
     private Handler mTimeoutHandler;
     private AccessPointTitleLayout m_l_title;
     private Bundle                  mTargetBundle;
+    private BroadcastReceiver br = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("WifiConnecting", intent.getAction());
+            if (ProxyService.ACTION_FAILED_START_PROXY.equals(intent.getAction())) {
+                int ErrorCode = intent.getIntExtra("ErrorCode", ProxyService.ERROR_CODE);
+                if (mTargetBundle != null) {
+                    mTargetBundle.putInt(".ErrorCode", ErrorCode);
+                }
+                internetTestResult(false);
+            } else if (ProxyService.ACTION_PROXY_STARTED.equals(intent.getAction())) {
+                internetTest();
+            }
+        }
+    };
 
     public WifiConnectingController(WifiConnectingFragment fragment, View rootView, AccessPoint ap, WifiConfiguration config, WifiService service) {
         mFragment = fragment;
@@ -52,6 +73,10 @@ public class WifiConnectingController {
         if (targetFragment != null) {
             mTargetBundle = targetFragment.getArguments();
         }
+
+        IntentFilter filter = new IntentFilter(ProxyService.ACTION_FAILED_START_PROXY);
+        filter.addAction(ProxyService.ACTION_PROXY_STARTED);
+        LocalBroadcastManager.getInstance(mFragment.getActivity()).registerReceiver(br, filter);
 
         mWifiService.setOnUpdateConnectionStateListener(new WifiService.onUpdateConnectionStateListener() {
             @Override
@@ -114,13 +139,13 @@ public class WifiConnectingController {
     }
 
     private void accessPointResult(final boolean result) {
-        clearListeners();
+        clearAPListener();
 
         if (result) {
             m_l_title.setConnected(true);
             ((TextView)mView.findViewById(R.id.connectToNetwork)).setTextColor(mFragment.getResources().getColor(R.color.oneEduGreen));
             ((ProgressBar)mView.findViewById(R.id.connectToNetworkProgress)).done();
-            internetTest();
+            mView.findViewById(R.id.l_connectInternet).setVisibility(View.VISIBLE);
         } else {
             ((TextView) mView.findViewById(R.id.connectToNetwork)).setTextColor(mFragment.getResources().getColor(R.color.oneEduPink));
             ((ProgressBar) mView.findViewById(R.id.connectToNetworkProgress)).fail();
@@ -153,9 +178,14 @@ public class WifiConnectingController {
         }
     }
 
-    public void clearListeners() {
+    private void clearAPListener() {
         mWifiService.setOnUpdateConnectionStateListener(null);
         mTimeoutHandler.removeMessages(1);
+    }
+
+    public void clearListeners() {
+        clearAPListener();
+        LocalBroadcastManager.getInstance(mFragment.getActivity()).unregisterReceiver(br);
     }
 
     private void popFragment(String stage) {

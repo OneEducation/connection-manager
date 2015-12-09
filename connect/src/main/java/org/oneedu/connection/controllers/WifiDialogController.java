@@ -19,6 +19,7 @@ package org.oneedu.connection.controllers;
 import android.content.Context;
 import android.content.res.Resources;
 import android.net.NetworkInfo.DetailedState;
+import android.net.Uri;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiConfiguration.AuthAlgorithm;
 import android.net.wifi.WifiConfiguration.KeyMgmt;
@@ -60,6 +61,8 @@ import org.oneedu.connection.interfaces.WifiConfigUiBase;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -136,6 +139,8 @@ public class WifiDialogController implements TextWatcher,
     private TextView mProxyUsername;
     private TextView mProxyPassword;
 
+    private TextView mProxyPacURL;
+
 //    private IpAssignment mIpAssignment = IpAssignment.UNASSIGNED;
 //    private ProxySettings mProxySettings = ProxySettings.UNASSIGNED;
 //    private LinkProperties mLinkProperties = new LinkProperties();
@@ -209,6 +214,8 @@ public class WifiDialogController implements TextWatcher,
                 }
             }
         });
+        mProxyPacURL = (TextView) mView.findViewById(R.id.proxy_pac);
+        mProxyPacURL.addTextChangedListener(this);
 
         if (mAccessPoint == null) { // new network
             mConfigUi.setTitle(R.string.wifi_add_network);
@@ -476,7 +483,12 @@ public class WifiDialogController implements TextWatcher,
 
         if (proxyEnabled) {
             if (isUsePac()) {
-                return getPacURL().length() > 0 && getPacURL().startsWith("file://");   // only support local file for now
+                try {
+                    new URL(getPacURL());
+                    return true;
+                } catch (MalformedURLException e) {
+                    return false;
+                }
             } else if (mProxyHostView.getText().length() > 0) {
                 String host = mProxyHostView.getText().toString();
                 String portStr = mProxyPortView.getText().toString();
@@ -1140,7 +1152,7 @@ public class WifiDialogController implements TextWatcher,
 
     public String getPacURL() {
         if (isProxyEnabled() && isUsePac()) {
-            return ((EditText) mView.findViewById(R.id.proxy_pac)).getText().toString();
+            return mProxyPacURL.getText().toString();
         } else {
             return null;
         }

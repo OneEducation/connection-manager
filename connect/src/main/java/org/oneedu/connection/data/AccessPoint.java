@@ -444,7 +444,5 @@ public class AccessPoint implements Comparable {
         mConfig = new WifiConfiguration();
         mConfig.SSID = AccessPoint.convertToQuotedString(ssid);
         mConfig.allowedKeyManagement.set(KeyMgmt.NONE);
-
-        List<java.net.Proxy> l = ProxySelector.getDefault().select(URI.create("Sdfsf"));
     }
 }

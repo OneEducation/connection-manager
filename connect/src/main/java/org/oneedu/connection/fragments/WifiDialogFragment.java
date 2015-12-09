@@ -27,6 +27,7 @@ import org.oneedu.connection.ResizeHeightAnimation;
 import org.oneedu.connection.data.AccessPoint;
 import org.oneedu.connection.controllers.WifiDialogController;
 import org.oneedu.connection.interfaces.WifiConfigUiBase;
+import org.oneedu.connection.services.ProxyService;
 
 /**
  * Created by dongseok0 on 25/03/15.
@@ -143,6 +144,7 @@ public class WifiDialogFragment extends Fragment implements WifiConfigUiBase {
     }
 
     private void handleError(int errorCode) {
+        Log.d("WifiDialog", "errorCode: " + errorCode);
         switch(errorCode) {
             case WifiManager.ERROR_AUTHENTICATING:
                 setWifiAuthError(R.string.field_incorrect);
@@ -155,6 +157,10 @@ public class WifiDialogFragment extends Fragment implements WifiConfigUiBase {
             case 500:
                 setProxyHostError(R.string.field_incorrect);
                 setProxyPortError(R.string.field_incorrect);
+                break;
+
+            case ProxyService.PAC_ERROR_CODE:
+                setPacError();
                 break;
         }
     }
@@ -284,6 +290,11 @@ public class WifiDialogFragment extends Fragment implements WifiConfigUiBase {
 
         MaterialEditText anonymous = (MaterialEditText)mView.findViewById(R.id.anonymous);
         anonymous.setError(id == 0 ? null : getString(id));
+    }
+
+    private void setPacError() {
+        MaterialEditText pac = (MaterialEditText)mView.findViewById(R.id.proxy_pac);
+        pac.setError("Error loading pac file");
     }
 
     @Override

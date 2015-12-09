@@ -4,18 +4,17 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
-import android.net.wifi.SupplicantState;
+import android.net.NetworkInfo;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Binder;
-import android.os.Environment;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import org.dongseok0.library.wifi.Wifi;
-import org.dongseok0.library.wifi.android.ProxySettings;
 import org.oneedu.connection.controllers.WifiDialogController;
 import org.oneedu.connection.data.ProxyDB;
 import org.sandrop.webscarab.model.Preferences;
@@ -25,14 +24,21 @@ import org.sandrop.webscarab.plugin.proxy.Proxy;
 import org.sandroproxy.utils.NetworkHostNameResolver;
 import org.sandroproxy.utils.PreferenceUtils;
 import org.sandroproxy.utils.network.ClientResolver;
+import org.sandroproxy.utils.pac.ProxyEvaluationException;
 import org.sandroproxy.webscarab.store.sql.SqlLiteStore;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Created by dongseok0 on 17/03/15.
  */
 public class ProxyService extends Service {
+
+    public static final String ACTION_FAILED_START_PROXY = "action.failed.start.proxy";
+    public static final String ACTION_PROXY_STARTED = "action.proxy.started";
+    public static final int PAC_ERROR_CODE = 1000;
+    public static final int ERROR_CODE = 1001;
 
     private final String tag = "ProxyService";
     private boolean proxyStarted;
@@ -42,6 +48,7 @@ public class ProxyService extends Service {
     private Context mContext;
     private ProxyDB proxyDB;
     private WifiManager mWifiManager;
+    private ConnectivityManager connectivityManager;
 
     @Override
     public void onCreate() {
@@ -49,6 +56,7 @@ public class ProxyService extends Service {
 
         mContext = getApplicationContext();
         mWifiManager = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
+        connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
         proxyDB = ProxyDB.getInstance(mContext);
 
@@ -83,25 +91,28 @@ public class ProxyService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(tag, "Received start id " + startId + ": " + intent);
 
-        // fix - network connected and restarting service
-        String ssid = null;
-        WifiInfo wifiInfo; // = null;
-
-        if (intent != null && WifiManager.WIFI_STATE_CHANGED_ACTION.equals(intent.getAction())) {
-            wifiInfo = intent.getParcelableExtra(WifiManager.EXTRA_WIFI_INFO);
-        } else {
+        NetworkInfo networkInfo;
+        WifiInfo wifiInfo;
+        if (intent == null) {  // Network connected and restarting service
+            networkInfo = connectivityManager.getActiveNetworkInfo();
             wifiInfo = mWifiManager.getConnectionInfo();
+        } else {
+            networkInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
+            wifiInfo = intent.getParcelableExtra(WifiManager.EXTRA_WIFI_INFO);
         }
 
-        if (wifiInfo != null) { // && networkInfo != null) {
-            SupplicantState state = wifiInfo.getSupplicantState();
-            Log.d(tag, wifiInfo.getSSID() + " : " + state.name());
-            if (state == SupplicantState.COMPLETED) {
-                ssid = wifiInfo.getSSID();
+        if (networkInfo == null) {
+            Log.d(tag, "networkInfo is null!");
+            toggleProxy(null);
+        } else {
+            NetworkInfo.State state = networkInfo.getState();
+            Log.d(tag, "networkInfo.state : " + state);
+            if (state == NetworkInfo.State.DISCONNECTED) {
+                toggleProxy(null);
+            } else if (state == NetworkInfo.State.CONNECTED) {
+                toggleProxy(wifiInfo.getSSID());
             }
         }
-
-        toggleProxy(ssid);
 
         // We want this service to continue running until it is explicitly
         // stopped, so return sticky.
@@ -159,6 +170,7 @@ public class ProxyService extends Service {
     }
 
     public void toggleProxy(String ssid) {
+        Log.d(tag, "toggleProxy SSID: " + ssid);
         org.oneedu.connection.data.Proxy proxy = null;
         if (ssid != null) {
             proxy = proxyDB.getProxy(ssid);
@@ -184,9 +196,24 @@ public class ProxyService extends Service {
             {
                 @Override
                 public void run() {
-                    Log.d(tag, "Starting proxy");
-                    framework.start();
-                    proxyStarted = true;
+
+                    try {
+                        Log.d(tag, "Configuring HTTPClient");
+                        framework.configureHTTPClient(mContext);
+
+                        Log.d(tag, "Starting proxy");
+                        proxyStarted = true;
+                        framework.start();
+                        LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(ACTION_PROXY_STARTED));
+                    } catch (ProxyEvaluationException | IOException e) {
+                        Intent i = new Intent(ACTION_FAILED_START_PROXY);
+                        i.putExtra("ErrorCode", PAC_ERROR_CODE);
+                        LocalBroadcastManager.getInstance(mContext).sendBroadcast(i);
+                    } catch (Exception e) {
+                        Intent i = new Intent(ACTION_FAILED_START_PROXY);
+                        i.putExtra("ErrorCode", ERROR_CODE);
+                        LocalBroadcastManager.getInstance(mContext).sendBroadcast(i);
+                    }
                 }
             };
             thread.setName("Starting proxy");
@@ -204,7 +231,7 @@ public class ProxyService extends Service {
                     proxyStarted = false;
                 }
             };
-            thread.setName("Stoping proxy");
+            thread.setName("Stopping proxy");
             thread.start();
         }
 
