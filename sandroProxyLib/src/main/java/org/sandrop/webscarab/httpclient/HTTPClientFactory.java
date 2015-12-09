@@ -54,7 +54,6 @@ import org.sandrop.webscarab.model.Request;
 import org.sandrop.webscarab.model.Response;
 import org.sandroproxy.utils.PreferenceUtils;
 import org.sandroproxy.utils.pac.PacProxySelector;
-import org.sandroproxy.utils.pac.PacScriptSource;
 import org.sandroproxy.utils.pac.UrlPacScriptSource;
 
 import android.content.Context;
@@ -216,7 +215,7 @@ public class HTTPClientFactory {
         return _authenticator;
     }
 
-    public void setPacProxy(String scriptUrl) {
+    public void setPacProxy(String scriptUrl) throws Exception {
         Log.d("PAC", "script: " + scriptUrl);
         if (scriptUrl == null || scriptUrl.length() == 0) {
             _pacProxySelector = null;

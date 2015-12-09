@@ -32,7 +32,7 @@ public class PacProxySelector {
 	 *            the source for the PAC file.
 	 ************************************************************************/
 
-	public PacProxySelector(PacScriptSource pacSource) {
+	public PacProxySelector(PacScriptSource pacSource) throws Exception {
 		super();
 		selectEngine(pacSource);
 	}
@@ -44,17 +44,20 @@ public class PacProxySelector {
 	 *            to use as input.
 	 ************************************************************************/
 
-	private void selectEngine(PacScriptSource pacSource) {
+	private void selectEngine(PacScriptSource pacSource) throws Exception {
 		try {
 			if (this.pacScriptParser != null) {
-				if (pacSource.getScriptContent().equals(this.pacScriptParser.getScriptSource().getScriptContent())) {
+				PacScriptSource prevPacSrc = this.pacScriptParser.getScriptSource();
+				if (prevPacSrc != null && pacSource.getScriptContent().equals(prevPacSrc.getScriptContent())) {
 					return;
 				}
 			}
+			pacSource.getScriptContent();		// Try to read here to handle error while proxy start
 			this.pacScriptParser = new RhinoPacScriptParser(pacSource);
 			this.cache.clear();
 		} catch (Exception e) {
 			Log.e(TAG, "PAC parser error.", e);
+			throw e;
 		}
 	}
 

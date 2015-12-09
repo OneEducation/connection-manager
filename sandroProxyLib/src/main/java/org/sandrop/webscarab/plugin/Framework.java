@@ -108,7 +108,7 @@ public class Framework {
 
         _captureData = Preferences.getPreferenceBoolean(PreferenceUtils.proxyCaptureData, false);
 
-        configureHTTPClient(mContext);
+        //configureHTTPClient(mContext);
         
         String dropRegex = Preferences.getPreference(PreferenceUtils.dataCaptureBlackListRegEx, null);
         try {
@@ -328,8 +328,8 @@ public class Framework {
         return status.toArray(new String[0]);
     }
     
-    public void start(){
-        configureHTTPClient(mContext);
+    public void start() {
+        //configureHTTPClient(mContext);
         startPlugins();
     }
     
@@ -517,7 +517,7 @@ public class Framework {
         return id;
     }
     
-    private void configureHTTPClient(Context context) {
+    public void configureHTTPClient(Context context) throws Exception {
         HTTPClientFactory factory = HTTPClientFactory.getInstance(context);
         String prop = null;
         String value;
@@ -579,8 +579,10 @@ public class Framework {
             
         } catch (NumberFormatException nfe) {
             _logger.warning("Error parsing property " + prop + ": " + nfe);
+            throw nfe;
         } catch (Exception e) {
             _logger.warning("Error configuring the HTTPClient property " + prop + ": " + e);
+            throw e;
         }
 
         // dongseok0@gmail.com - move setting credentials from constructor to here for affect modified info
