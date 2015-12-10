@@ -904,7 +904,7 @@ public class WifiDialogController implements TextWatcher,
         //if (mProxySettingsSpinner.getSelectedItemPosition() == PROXY_STATIC) {
         if (mProxySB.isChecked()) {
 
-            //mView.findViewById(R.id.proxy_warning_limited_support).setVisibility(View.VISIBLE);
+            mUsePacSB.setVisibility(View.VISIBLE);
             View proxyFields = mView.findViewById(R.id.proxy_fields);
             proxyFields.setVisibility(View.VISIBLE);
             ret = proxyFields;
@@ -952,7 +952,7 @@ public class WifiDialogController implements TextWatcher,
                 }
             }
         } else {
-            //mView.findViewById(R.id.proxy_warning_limited_support).setVisibility(View.GONE);
+            mUsePacSB.setVisibility(View.GONE);
             mView.findViewById(R.id.proxy_fields).setVisibility(View.GONE);
         }
         return ret;
