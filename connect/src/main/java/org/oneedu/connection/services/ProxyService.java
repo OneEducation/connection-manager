@@ -184,9 +184,9 @@ public class ProxyService extends Service {
             String pacUrl = proxy.getPacUrl();
 
             boolean usePac = pacUrl != null && pacUrl.length() > 0;
-
-            Preferences.setPreference(PreferenceUtils.chainProxyUsername, "\\" + username);
-            Preferences.setPreference(PreferenceUtils.chainProxyPassword, password);
+            boolean useAuth = username != null && username.length() > 0;
+            Preferences.setPreference(PreferenceUtils.chainProxyUsername, useAuth ? "\\" + username : "");
+            Preferences.setPreference(PreferenceUtils.chainProxyPassword, useAuth ? password : "");
             Preferences.setPreference(PreferenceUtils.chainProxyHttp, usePac ? "" : host + ":" + port);
             Preferences.setPreference(PreferenceUtils.chainProxyHttps, usePac ? "" : host + ":" + port);
             Preferences.setPreference(PreferenceUtils.chainProxyPacUrl, pacUrl);
