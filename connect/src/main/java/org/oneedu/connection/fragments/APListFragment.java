@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SimpleItemAnimator;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -55,8 +56,12 @@ public class APListFragment extends Fragment {
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         mApListView.setLayoutManager(llm);
 
+        // Update for v23.1 (http://android-developers.blogspot.com.au/2015/10/android-support-library-231.html)
         // Default animator with change animation enabled from v22.0 (fade in/out)
-        mApListView.getItemAnimator().setSupportsChangeAnimations(false);
+        RecyclerView.ItemAnimator animator = mApListView.getItemAnimator();
+        if (animator instanceof SimpleItemAnimator) {
+            ((SimpleItemAnimator) animator).setSupportsChangeAnimations(false);
+        }
 
         mWifiAdapter = new WifiAdapter(context, ((MainActivity)context).mWifiService.getAPList());
         mApListView.setAdapter(mWifiAdapter);

@@ -3,12 +3,12 @@ import org.apache.tools.ant.taskdefs.condition.Os
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 'Google Inc.:Google APIs:21'
-    buildToolsVersion "21.1.2"
+    compileSdkVersion 23
+    buildToolsVersion "23.0.2"
 
     defaultConfig {
         minSdkVersion 8
-        targetSdkVersion 19
+        targetSdkVersion 23
     }
 
     buildTypes {
@@ -22,6 +22,8 @@ android {
         jniLibs.srcDir 'src/main/libs'
         jni.srcDirs = [] //disable automatic ndk-build call
     }
+
+    useLibrary 'org.apache.http.legacy'
 
 //    // call regular ndk-build(.cmd) script from app directory
 //    task ndkBuild(type: Exec) {

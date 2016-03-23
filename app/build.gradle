@@ -16,11 +16,11 @@ android {
         }
     }
     compileSdkVersion 18
-    buildToolsVersion "21.1.2"
+    buildToolsVersion "23.0.2"
     defaultConfig {
         //applicationId "org.oneedu.connection"
         minSdkVersion 18
-        targetSdkVersion 21
+        targetSdkVersion 23
         versionCode 200
         versionName "2.0.0"
     }

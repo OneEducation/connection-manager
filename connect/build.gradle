@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion "21.1.2"
+    compileSdkVersion 23
+    buildToolsVersion "23.0.2"
 
     signingConfigs {
         sys {
@@ -16,9 +16,9 @@ android {
     defaultConfig {
         applicationId "org.oneedu.connection"
         minSdkVersion 18
-        targetSdkVersion 21
-        versionCode 220
-        versionName "2.2.0"
+        targetSdkVersion 23
+        versionCode 230
+        versionName "2.3.0"
     }
     buildTypes {
         release {
@@ -29,6 +29,11 @@ android {
         debug {
             signingConfig signingConfigs.sys
         }
+    }
+
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
     }
 }
 
