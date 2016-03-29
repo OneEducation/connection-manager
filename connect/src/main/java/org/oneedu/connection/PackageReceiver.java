@@ -33,16 +33,20 @@ public class PackageReceiver extends BroadcastReceiver {
 
     private void checkAppUniverse(Context context) {
         Intent intent = new Intent(context, InstallerService.class);
-        intent.putExtra(InstallerService.EXTRA_ASSETS_APK, "AppUniverse_v2.0.apk");
+        intent.putExtra(InstallerService.EXTRA_ASSETS_APK, "AppUniverse_v2.1.apk");
 
         try {
-            // Skip if current version is higher than 2.0.0
             PackageInfo info = context.getPackageManager().getPackageInfo("org.oneedu.appuniverse", 0);
-            if (info.versionCode >= 200) {
+            if (info.versionCode < 200) {
+                // Uninstall and install if find under 2.0 version.
+                intent.setAction(InstallerService.ACTION_REINSTALL);
+            } else if (info.versionCode < 210) {
+                intent.setAction(InstallerService.ACTION_INSTALL);
+            } else {
+                // Skip if current version is higher than 2.1.0
                 return;
             }
-            // Uninstall and install if find under 2.0 version.
-            intent.setAction(InstallerService.ACTION_REINSTALL);
+
             intent.putExtra(InstallerService.EXTRA_PACKAGE_NAME, "org.oneedu.appuniverse");
         } catch (PackageManager.NameNotFoundException e) {
             Log.d(TAG, "App Universe is not installed.");
